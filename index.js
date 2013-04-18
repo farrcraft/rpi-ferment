@@ -15,6 +15,7 @@
   thermo = new Thermometer();
 
   if (argv.sensors) {
+    console.log('Querying sensor ids...');
     sensors = thermo.sensors();
     for (_i = 0, _len = sensors.length; _i < _len; _i++) {
       sensor = sensors[_i];
@@ -34,8 +35,22 @@
   };
 
   sample = function() {
-    console.log('sampling...');
-    statsdClient.gauge(sensorName, sensorReading);
+    var sensorReading, _j, _len1, _ref;
+
+    if (argv.debug) {
+      console.log('sampling...');
+    }
+    _ref = config.sensors;
+    for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+      sensor = _ref[_j];
+      sensorReading = thermo.temperature(sensor.id);
+      if (argv.debug) {
+        console.log(sensorReading);
+      }
+      if (!argv.nolog) {
+        statsdClient.gauge(sensorName, sensorReading);
+      }
+    }
     if (!shutdown) {
       setTimeout(emitSampleSignal, config.pollFrequency);
     }
