@@ -7,7 +7,8 @@ config 		 = require './lib/config.js'
 Thermometer	 = require './lib/thermometer.js'
 
 thermo = new Thermometer()
-thermo.unit 'farenheight'
+# temperature readings are in F or C?
+thermo.unit config.sensorUnit
 
 # --sensors CLI option prints out each of the detected ds18b20 serial #'s and exits
 if argv.sensors
@@ -28,15 +29,15 @@ emitSampleSignal = ->
 	return
 
 sample = ->
-	# for each configured sensor (config.sensors)
+	# for each configured sensor
 	for sensor in config.sensors
 		# poll sensor to get current temperature reading
 		sensorReading = thermo.temperature sensor.id
 		if argv.debug
-			console.log sensorReading
+			console.log sensor.name + '[' + sensor.id + '] : ' + sensorReading
 		# log temperature
 		if not argv.nolog
-			statsdClient.gauge sensorName, sensorReading
+			statsdClient.gauge sensor.name, sensorReading
 	#	if pid attached to sensor
 	#		set current pv in pid
 	#		do pid computation

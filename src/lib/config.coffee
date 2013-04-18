@@ -1,5 +1,6 @@
 module.exports = {
 	pollFrequency: 100
+	sensorUnit: 'farenheight'
 	sensors: [
 		{
 			name: 'ambient',
