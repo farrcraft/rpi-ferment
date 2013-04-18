@@ -14,7 +14,7 @@
 
   thermo = new Thermometer();
 
-  thermo.unit('farenheight');
+  thermo.unit(config.sensorUnit);
 
   if (argv.sensors) {
     console.log('Querying sensor ids...');
@@ -44,10 +44,10 @@
       sensor = _ref[_j];
       sensorReading = thermo.temperature(sensor.id);
       if (argv.debug) {
-        console.log(sensorReading);
+        console.log(sensor.name + '[' + sensor.id + '] : ' + sensorReading);
       }
       if (!argv.nolog) {
-        statsdClient.gauge(sensorName, sensorReading);
+        statsdClient.gauge(sensor.name, sensorReading);
       }
     }
     if (!shutdown) {
