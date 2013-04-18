@@ -9,7 +9,7 @@ Thermometer	 = require './lib/thermometer.js'
 thermo = new Thermometer()
 
 if argv.sensors
-	sensors = thermo.sensors
+	sensors = thermo.sensors()
 	console.log sensor for sensor in sensors
 	return
 

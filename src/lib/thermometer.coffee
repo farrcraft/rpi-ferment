@@ -11,7 +11,7 @@ class Thermometer
 	# return an array of sensor serial numbers
 	sensors: =>
 		# get all directories matching pattern basePath_ + '28-*'
-		files = fs.readDirSync @basePath_
+		files = fs.readdirSync @basePath_
 		ids = []
 		for entry in files
 			pos = entry.indexOf '28-'
