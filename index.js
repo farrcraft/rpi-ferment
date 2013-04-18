@@ -15,7 +15,7 @@
   thermo = new Thermometer();
 
   if (argv.sensors) {
-    sensors = thermo.sensors;
+    sensors = thermo.sensors();
     for (_i = 0, _len = sensors.length; _i < _len; _i++) {
       sensor = sensors[_i];
       console.log(sensor);
