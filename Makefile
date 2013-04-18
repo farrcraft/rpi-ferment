@@ -13,6 +13,7 @@ modules:
 	npm install node-statsd@0.0.7
 	npm install optimist@0.4.0
 	sudo npm install -g forever@0.10.0
+	npm install rpi-gpio@0.0.4
 
 clean:
 	rm -rf lib
