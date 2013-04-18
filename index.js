@@ -14,6 +14,8 @@
 
   thermo = new Thermometer();
 
+  thermo.unit('farenheight');
+
   if (argv.sensors) {
     console.log('Querying sensor ids...');
     sensors = thermo.sensors();
@@ -37,9 +39,6 @@
   sample = function() {
     var sensorReading, _j, _len1, _ref;
 
-    if (argv.debug) {
-      console.log('sampling...');
-    }
     _ref = config.sensors;
     for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
       sensor = _ref[_j];

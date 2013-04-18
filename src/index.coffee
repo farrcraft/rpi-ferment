@@ -7,6 +7,7 @@ config 		 = require './lib/config.js'
 Thermometer	 = require './lib/thermometer.js'
 
 thermo = new Thermometer()
+thermo.unit 'farenheight'
 
 # --sensors CLI option prints out each of the detected ds18b20 serial #'s and exits
 if argv.sensors
@@ -27,8 +28,6 @@ emitSampleSignal = ->
 	return
 
 sample = ->
-	if argv.debug
-		console.log 'sampling...'
 	# for each configured sensor (config.sensors)
 	for sensor in config.sensors
 		# poll sensor to get current temperature reading

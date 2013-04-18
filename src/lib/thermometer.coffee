@@ -20,9 +20,14 @@ class Thermometer
 		return ids
 
 
+	unit: (type) =>
+		@unit_ = type
+		return @
+
+
 	raw: (sensorId) =>
 		filename = @basePath_ + '28-' + sensorId + @deviceFile_
-		data = fs.readFileSync(filename)
+		data = String fs.readFileSync(filename)
 		lines = data.split '\n'
 		return lines
 
@@ -32,7 +37,7 @@ class Thermometer
 		# keep trying to read data until first line ends with 'YES'
 		while not reading
 			lines = @raw sensorId
-			if lines[0].slice(lines[0].length - 4) == 'YES'
+			if lines[0].slice(lines[0].length - 3) == 'YES'
 				reading = true
 		# find 't='' in lines[1]
 		pos = lines[1].indexOf 't='
