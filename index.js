@@ -42,8 +42,8 @@
     _ref = config.sensors;
     for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
       sensor = _ref[_j];
-      if (sensor.control === !"none") {
-        gpio.setup(sensor.gpio(gpio.DIR_OUT));
+      if (sensor.control !== "none") {
+        gpio.setup(sensor.gpio, gpio.DIR_OUT);
         controlChannels[sensor.gpio] = {
           enabled: false,
           locked: false

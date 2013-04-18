@@ -34,8 +34,8 @@ ioChange = (channel, value) ->
 # enable access to gpio pins for each sensor with an active control mode
 setupIO = ->
 	for sensor in config.sensors
-		if sensor.control is not "none"
-			gpio.setup sensor.gpio gpio.DIR_OUT
+		if sensor.control != "none"
+			gpio.setup sensor.gpio, gpio.DIR_OUT
 			controlChannels[sensor.gpio] = 
 				enabled: false,
 				locked: false
