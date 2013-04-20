@@ -6,12 +6,12 @@
 EventEmitter = require('events').EventEmitter
 statsd 		 = require('node-statsd').StatsD
 argv		 = require('optimist').argv
-gpio		 = require 'rpi-gpio'
 
 # local app configuration
 config 		 = require './lib/config.js'
 # interface to temperature sensors
 Thermometer	 = require './lib/thermometer.js'
+IO 			 = require './lib/io.js'
 
 thermo = new Thermometer()
 # temperature readings are in F or C?
@@ -24,36 +24,20 @@ if argv.sensors
 	console.log sensor for sensor in sensors
 	return
 
-controlChannels = []
+# --query <id> CLI option queries the temperature of the sensor, displays it and exists
+if argv.query
+	console.log 'Querying sensor id [' + argv.query ']...'
+	sensorReading = thermo.temperature argv.query
+	console.log 'Temperature: ' + sensorReading
+	return
 
-ioChange = (channel, value) ->
-	console.log 'Channel ' + channel + ' value is now ' + value
-	controlChannels[channel].locked = false
-	controlChannels[channel].enabled = value
-
-# enable access to gpio pins for each sensor with an active control mode
-setupIO = ->
-	for sensor in config.sensors
-		if sensor.control != "none"
-			gpio.setup sensor.gpio, gpio.DIR_OUT
-			controlChannels[sensor.gpio] = 
-				enabled: false,
-				locked: false
-	# handler for change events
-	gpio.on 'change', ioChange
-
+io = new IO(argv.debug)
+io.setup(config)
 
 emitter = new EventEmitter()
-
-shutdown = false
-
 statsdClient = new statsd()
 
-setupIO()
-
-ioCallback = (err) ->
-	if err
-		throw err
+shutdown = false
 
 
 emitSampleSignal = -> 
@@ -73,17 +57,19 @@ sample = ->
 
 		continue if sensor.control is "none"
 		# control channel is already locked from a pending update so skip trying to change it
-		continue if controlChannels[sensor.gpio].locked is true
+		continue if IO.locked(sensor.gpio) is true
 
 		controlName = sensor.name + '_gpio_' + sensor.gpio
 		if sensor.control is "manual"
-			if sensorReading > sensor.sv and controlChannels[sensor.gpio].enabled is true
-				gpio.write sensor.gpio, false, ioCallback
-				controlChannels[sensor.gpio].locked = true
+			if sensorReading > sensor.sv and IO.enabled sensor.gpio
+				if argv.debug
+					console.log 'disabling io channel: ' + sensor.gpio
+				IO.signal sensor.gpio, false
 				statsdClient.decrement controlName
-			else if sensorReading < sensor.sv and controlChannels[sensor.gpio].enabled is not true
-				gpio.write sensor.gpio, true, ioCallback
-				controlChannels[sensor.gpio].locked = true
+			else if sensorReading < sensor.sv and not IO.enabled sensor.gpio
+				if argv.debug
+					console.log 'enabling io channel: ' + sensor.gpio
+				IO.signal sensor.gpio, true
 				statsdClient.increment controlName
 	#	if pid attached to sensor
 	#		set current pv in pid
