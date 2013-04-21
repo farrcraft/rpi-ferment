@@ -26,7 +26,7 @@ if argv.sensors
 
 # --query <id> CLI option queries the temperature of the sensor, displays it and exists
 if argv.query
-	console.log 'Querying sensor id [' + argv.query ']...'
+	console.log 'Querying sensor id [' + argv.query + ']...'
 	sensorReading = thermo.temperature argv.query
 	console.log 'Temperature: ' + sensorReading
 	return

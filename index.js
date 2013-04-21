@@ -29,7 +29,7 @@
   }
 
   if (argv.query) {
-    console.log('Querying sensor id [' + argv.query(']...'));
+    console.log('Querying sensor id [' + argv.query + ']...');
     sensorReading = thermo.temperature(argv.query);
     console.log('Temperature: ' + sensorReading);
     return;

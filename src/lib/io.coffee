@@ -21,6 +21,8 @@ class IO
 		gpio.setMode gpio.MODE_BCM
 		for sensor in config.sensors
 			if sensor.control != "none"
+				if @debug_
+					console.log 'Enabling GPIO ' + sensor.gpio + ' for writing...'
 				gpio.setup sensor.gpio, gpio.DIR_OUT
 				@controlChannels_[sensor.gpio] = 
 					enabled: false,
