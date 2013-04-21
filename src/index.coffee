@@ -34,6 +34,23 @@ if argv.query
 io = new IO(argv.debug)
 io.setup(config)
 
+
+# --control <channel> CLI option sends a control signal to the gpio channel
+# must be used in conjunction with --enable or --disable
+if argv.control
+	if argv.enable
+		mode = 'enable'
+		state = true
+	else if argv.disable
+		mode = 'disable'
+		state = false
+	else
+		console.log '--control <channel> requires either --enable or --disable option'
+	console.log 'Sending ' + mode + ' signal to control channel ' + argv.control 
+	io.signal argv.control, state
+	return
+
+
 emitter = new EventEmitter()
 statsdClient = new statsd()
 
@@ -57,19 +74,19 @@ sample = ->
 
 		continue if sensor.control is "none"
 		# control channel is already locked from a pending update so skip trying to change it
-		continue if IO.locked(sensor.gpio) is true
+		continue if io.locked(sensor.gpio) is true
 
 		controlName = sensor.name + '_gpio_' + sensor.gpio
 		if sensor.control is "manual"
-			if sensorReading > sensor.sv and IO.enabled sensor.gpio
+			if sensorReading > sensor.sv and io.enabled sensor.gpio
 				if argv.debug
 					console.log 'disabling io channel: ' + sensor.gpio
-				IO.signal sensor.gpio, false
+				io.signal sensor.gpio, false
 				statsdClient.decrement controlName
-			else if sensorReading < sensor.sv and not IO.enabled sensor.gpio
+			else if sensorReading < sensor.sv and not io.enabled sensor.gpio
 				if argv.debug
 					console.log 'enabling io channel: ' + sensor.gpio
-				IO.signal sensor.gpio, true
+				io.signal sensor.gpio, true
 				statsdClient.increment controlName
 	#	if pid attached to sensor
 	#		set current pv in pid
