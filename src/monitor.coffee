@@ -107,17 +107,22 @@ sample = () ->
 		# control channel is already locked from a pending update so skip trying to change it
 		continue if io.locked(sensor.gpio) is true
 
+		controlSignalCompletion = ->
+			if argv.debug
+				console.log 'GPIO channel state updated'
+			return
+
 		controlName = sensor.name + '_gpio_' + sensor.gpio
 		if sensor.control is "manual"
 			if sensorReading > sensor.sv and io.enabled sensor.gpio
 				if argv.debug
 					console.log 'disabling io channel: ' + sensor.gpio
-				io.signal sensor.gpio, false
+				io.signal sensor.gpio, false, controlSignalCompletion
 				statsdClient.decrement controlName
 			else if sensorReading < sensor.sv and not io.enabled sensor.gpio
 				if argv.debug
 					console.log 'enabling io channel: ' + sensor.gpio
-				io.signal sensor.gpio, true
+				io.signal sensor.gpio, true,  controlSignalCompletion
 				statsdClient.increment controlName
 	#	if pid attached to sensor
 	#		set current pv in pid

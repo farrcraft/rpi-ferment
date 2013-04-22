@@ -91,7 +91,7 @@
   };
 
   sample = function() {
-    var controlName, _j, _len1, _ref;
+    var controlName, controlSignalCompletion, _j, _len1, _ref;
 
     _ref = config.sensors;
     for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
@@ -109,19 +109,24 @@
       if (io.locked(sensor.gpio) === true) {
         continue;
       }
+      controlSignalCompletion = function() {
+        if (argv.debug) {
+          console.log('GPIO channel state updated');
+        }
+      };
       controlName = sensor.name + '_gpio_' + sensor.gpio;
       if (sensor.control === "manual") {
         if (sensorReading > sensor.sv && io.enabled(sensor.gpio)) {
           if (argv.debug) {
             console.log('disabling io channel: ' + sensor.gpio);
           }
-          io.signal(sensor.gpio, false);
+          io.signal(sensor.gpio, false, controlSignalCompletion);
           statsdClient.decrement(controlName);
         } else if (sensorReading < sensor.sv && !io.enabled(sensor.gpio)) {
           if (argv.debug) {
             console.log('enabling io channel: ' + sensor.gpio);
           }
-          io.signal(sensor.gpio, true);
+          io.signal(sensor.gpio, true, controlSignalCompletion);
           statsdClient.increment(controlName);
         }
       }
