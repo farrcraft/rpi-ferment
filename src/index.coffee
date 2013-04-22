@@ -31,9 +31,6 @@ if argv.query
 	console.log 'Temperature: ' + sensorReading
 	return
 
-io = new IO(argv.debug)
-io.setup(config)
-
 
 # --control <channel> CLI option sends a control signal to the gpio channel
 # must be used in conjunction with --enable or --disable
@@ -47,8 +44,20 @@ if argv.control
 	else
 		console.log '--control <channel> requires either --enable or --disable option'
 	console.log 'Sending ' + mode + ' signal to control channel ' + argv.control 
-	io.signal argv.control, state
+
+	end = () ->
+		process.exit()
+	send = () -> 
+		io.signal argv.control, state, end
+	io = new IO(argv.debug)
+
+	io.setup(config, send)
+
 	return
+
+
+io = new IO(argv.debug)
+io.setup(config)
 
 
 emitter = new EventEmitter()
