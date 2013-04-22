@@ -77,11 +77,25 @@ When invoked without any options, the application enters continuous polling mode
 The list of sensors needs to be configured with the actual sensor ids before invoking this mode.  While the serial numbers are printed directly on the sensors, it is much easier to query them programmatically instead.  Invoking the application with the *--sensors* option does this, printing the serial number of each connected temperature sensor.
 
 ``` bash
-  $ node index.js --sensors
+  $ node monitor.js --sensors
 ```
 
 It is also possible to query a single sensor for the current temperature once and then immediately exit.  Using the *--query* option and passing it the serial number of the sensor accomplishes this.
 
 ``` bash
-   $ node index.js --query 000004bd9529
+   $ node monitor.js --query 000004bd9529
+```
+
+### Output Control
+
+GPIO channels can be toggled by using the *--control <gpio>* option with either *--enable* or *--disable*.
+
+``` bash
+  $ node monitor.js --control 8 --enable
+```
+
+The current state of GPIO channels can be queried by using the *--status <gpio>* option.
+
+``` bash
+  $ node monitor.js --status 8
 ```

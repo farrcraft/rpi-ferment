@@ -1,0 +1,34 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          carbon
+# Required-Start:    $local_fs $remote_fs $network
+# Required-Stop:     $local_fs $remote_fs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     true
+# Short-Description: Start/stop carbon server
+### END INIT INFO
+
+set -e
+
+touch /var/lock/carbon
+
+GRAPHITE_HOME=/opt/graphite
+CARBON_USER=www-data
+
+case "$1" in
+    start)
+        echo "Starting carbon server"
+        su $CARBON_USER -c "cd $GRAPHITE_HOME"; su $CARBON_USER -c "$GRAPHITE_HOME/bin/carbon-cache.py start"
+        ;;
+    stop)
+        echo "Stopping carbon server"
+        su $CARBON_USER -c "cd $GRAPHITE_HOME"; su $CARBON_USER -c "$GRAPHITE_HOME/bin/carbon-cache.py stop"
+        ;;
+    *)
+        echo "Usage: /etc/init.d/carbon {start|stop}"
+        exit 1
+        ;;
+esac
+
+exit 0

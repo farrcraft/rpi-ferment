@@ -24,7 +24,8 @@ if argv.sensors
 	console.log sensor for sensor in sensors
 	return
 
-# --query <id> CLI option queries the temperature of the sensor, displays it and exists
+
+# --query <id> CLI option queries the temperature of the sensor, displays it and exits
 if argv.query
 	console.log 'Querying sensor id [' + argv.query + ']...'
 	sensorReading = thermo.temperature argv.query
@@ -48,15 +49,36 @@ if argv.control
 	end = () ->
 		process.exit()
 	send = () -> 
+		# force internal io state to appear enabled if we're trying to send a disabled command
+		if not state
+			io.state true
 		io.signal argv.control, state, end
-	io = new IO(argv.debug)
+
+	io = new IO(argv.debug, 'out')
 
 	io.setup(config, send)
 
 	return
 
 
-io = new IO(argv.debug)
+# --status <channel> CLI option queries the status of the gpio channel, displays it, and exits
+if argv.status
+	console.log 'Querying status of GPIO channel ' + argv.status + '...'
+	status = (err, value) ->
+		state = 'off'
+		if value
+			state = 'on'
+		console.log 'GPIO channel is ' + state
+		return
+	query = () ->
+		io.status argv.status, status
+	io = new IO(argv.debug, 'in')
+	io.setup(config, query)
+	return
+
+
+
+io = new IO(argv.debug, 'out')
 io.setup(config)
 
 

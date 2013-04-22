@@ -4,7 +4,7 @@ all: build
 
 build:
 	$(COFFEE_PATH) --compile --output lib/ src/lib/
-	$(COFFEE_PATH) --compile --output . src/index.coffee
+	$(COFFEE_PATH) --compile --output . src/monitor.coffee
 
 modules:
 	npm install coffee-script
