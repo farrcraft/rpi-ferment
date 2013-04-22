@@ -1,11 +1,12 @@
-gpio = require 'rpi-gpio'
+gpio 	= require 'rpi-gpio'
+async 	= require 'async'
 
 class IO
 	controlChannels_: []
 	debug_: false
 
 	constructor: (debug) ->
-		debug_ = debug
+		@debug_ = debug
 		return
 
 	change: (channel, value) =>
@@ -15,8 +16,14 @@ class IO
 		@controlChannels_[channel].enabled = value
 		return
 
+	export: (channel) =>
+		if @debug_
+			console.log 'Channel ' + channel + ' exported'
+			@controlChannels_[channel].initialized = true
+
 	# enable access to gpio pins for each sensor with an active control mode
 	setup: (config) =>
+		gpio.on 'export', @export
 		# use the gpio channel names and not the actual pin numbers to reference gpio channels
 		gpio.setMode gpio.MODE_BCM
 		for sensor in config.sensors
@@ -26,7 +33,21 @@ class IO
 				gpio.setup sensor.gpio, gpio.DIR_OUT
 				@controlChannels_[sensor.gpio] = 
 					enabled: false,
-					locked: false
+					locked: false,
+					initialized: false
+		checkStatus = () -> 
+			@controlChannels_[sensor.gpio].initialized == false
+		waiting = (callback) -> 
+			if @debug_
+				console.log '.'
+		callback = (err) ->
+			if err
+				console.log err
+			if @debug_
+				console.log 'GPIO ' + sensor.gpio + ' enabled.'
+
+		async.whilst checkStatus, waiting, callback
+
 		# handler for change events
 		gpio.on 'change', @change
 		return
@@ -38,7 +59,19 @@ class IO
 
 	signal: (channel, state) ->
 		if @enabled(channel) isnt state and not @locked channel
-			gpio.write channel, state, @signalCallback
+			checkStatus = () -> 
+				@controlChannels_[sensor.gpio].initialized == false
+			waiting = (callback) -> 
+				if @debug_
+					console.log '.'
+			callback = (err) ->
+				if err
+					console.log err
+				else
+					if @debug_
+						console.log 'Writing to GPIO channel ' + channel
+					gpio.write channel, state, @signalCallback
+			async.whilst checkStatus, waiting, callback
 			@controlChannels_[channel].locked = true
 		return
 
