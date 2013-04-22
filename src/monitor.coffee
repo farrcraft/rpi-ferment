@@ -69,6 +69,7 @@ if argv.status
 		if value
 			state = 'on'
 		console.log 'GPIO channel is ' + state
+		process.exit()
 		return
 	query = () ->
 		io.status argv.status, status
@@ -79,7 +80,6 @@ if argv.status
 
 
 io = new IO(argv.debug, 'out')
-io.setup(config)
 
 
 emitter = new EventEmitter()
@@ -88,11 +88,11 @@ statsdClient = new statsd()
 shutdown = false
 
 
-emitSampleSignal = -> 
+emitSampleSignal = () -> 
 	emitter.emit 'sample'
 	return
 
-sample = ->
+sample = () ->
 	# for each configured sensor
 	for sensor in config.sensors
 		# poll sensor to get current temperature reading
@@ -131,6 +131,10 @@ sample = ->
 
 emitter.on 'sample', sample
 
-setTimeout emitSampleSignal, config.pollFrequency
 
+startSampling = () ->
+	setTimeout emitSampleSignal, config.pollFrequency
+	return
+
+io.setup(config, startSampling)
 
