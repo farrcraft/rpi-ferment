@@ -7,7 +7,8 @@
     "node-statsd": "0.0.7",
     "optimist": "0.4.0",
     "rpi-gpio": "0.0.4",
-    "winston": "0.7.1"
+    "winston": "0.7.1",
+    "socket.io": "0.9.14",
   },
   "devDependencies": {
   	"coffee-script": "1.6.2"
