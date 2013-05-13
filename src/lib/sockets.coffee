@@ -13,12 +13,14 @@ class Sockets
 		return
 
 	run: () =>
+		if @controller_.debug()
+			console.log 'Listening for socket connections...'
 		app = http.createServer(@httpHandler)
 		socketio.listen(app)
 		socketio.sockets.on 'connection', @connectionHandler
 		return
 
-	connectionHandler: (socket) ->
+	connectionHandler: (socket) =>
 		###
 		  socket.emit('news', { hello: 'world' });
 		  socket.on('my other event', function (data) {
@@ -27,6 +29,8 @@ class Sockets
 		###
 		# send config to socket
 		socket.on 'config', () ->
+			if @controller_.debug()
+				console.log 'Socket requested config'
 			socket.emit @controller_.config()
 			return
 
@@ -38,11 +42,15 @@ class Sockets
 
 		# set gpio state for channel
 		socket.on 'setgpio', (channel, state) ->
+			if @controller_.debug()
+				console.log 'Socket requested GPIO channel [' + channel '] set to state [' + state ']'
 			@controller_.setGpio channel, state
 			return
 
 		# set sensor sv
 		socket.on 'setsv', (sensor, sv) ->
+			if @controller_.debug()
+				console.log 'Socket requested sensor [' + sensor + '] SV set to [' + sv + ']'
 			@controller_.setSv sensor, sv
 			return
 
@@ -66,6 +74,8 @@ class Sockets
 
 		# set a sensor's control mode
 		socket.on 'setmode', (sensor, mode) ->
+			if @controller_.debug()
+				console.log 'Socket requested sensor [' + sensor '] set to mode [' + mode + ']'
 			@controller_.setMode sensor, mode
 
 		return
