@@ -78,11 +78,15 @@ class Controller
 	processSample: (sensor, value) =>
 		@state_[sensor].pv = value
 
+		if @debug_
+			console.log 'Processing sample value [' + value + '] for sensor [' + sensor + ']' 
+
 		if @statsd_
 			@statsd_.gauge sensor, value
 
-		if @config_[sensor].type isnt 'fermenter'
+		if not @state_[sensor].gpio?
 			return
+
 		if @state_[sensor].mode is 'manual'
 			if value > @state_[sensor].sv and @state_[sensor].gpio
 				if @debug_
