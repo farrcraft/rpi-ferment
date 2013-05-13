@@ -2,7 +2,7 @@
 # (c) Joshua Farr <j.wgasa@gmail.com>
 
 # interface to temperature sensors
-Thermometer	 = require './lib/thermometer.js'
+Thermometer	 = require './thermometer.js'
 EventEmitter = require('events').EventEmitter
 
 

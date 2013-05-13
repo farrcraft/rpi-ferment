@@ -2,10 +2,10 @@
 # (c) Joshua Farr <j.wgasa@gmail.com>
 
 # local app configuration
-config 		 = require './lib/config.js'
+config 		 = require './config.js'
 # interface to temperature sensors
-Thermometer	 = require './lib/thermometer.js'
-IO 			 = require './lib/io.js'
+Thermometer	 = require './thermometer.js'
+IO 			 = require './io.js'
 
 thermo = new Thermometer()
 # temperature readings are in F or C?

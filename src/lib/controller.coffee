@@ -2,9 +2,9 @@
 # (c) Joshua Farr <j.wgasa@gmail.com>
 
 statsd 		= require('node-statsd').StatsD
-Sampler		= require './lib/sampler.js'
-IO 			= require './lib/io.js'
-Sockets		= require './lib/sockets.js'
+Sampler		= require './sampler.js'
+IO 			= require './io.js'
+Sockets		= require './sockets.js'
 
 class Controller
 	config_: {}
