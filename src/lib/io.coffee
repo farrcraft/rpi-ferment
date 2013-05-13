@@ -51,7 +51,7 @@ class IO
 		# use the gpio channel names and not the actual pin numbers to reference gpio channels
 		gpio.setMode gpio.MODE_BCM
 		for sensor in config.sensors
-			if sensor.control != "none"
+			if sensor.gpio?
 				if @debug_
 					console.log 'Enabling GPIO ' + sensor.gpio + ' for writing...'
 				direction = gpio.DIR_OUT
