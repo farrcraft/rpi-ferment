@@ -1,8 +1,7 @@
 # Raspberry Pi Fermentation temperature logging & control application
-#
 # (c) Joshua Farr <j.wgasa@gmail.com>
-#
-gpio 	= require 'rpi-gpio'
+
+gpio = require 'rpi-gpio'
 
 # class for controlling GPIO channels
 class IO

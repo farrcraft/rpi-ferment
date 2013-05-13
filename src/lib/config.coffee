@@ -1,25 +1,26 @@
 module.exports = {
-	pollFrequency: 100
+	pollFrequency: 1000
 	sensorUnit: 'farenheight'
 	sensors: [
 		{
-			name: 'ambient',
-			id: '000004bd611f',
-			control: "none"
+			name: 'ambient'
+			label: 'Ambient'
+			id: '000004bd611f'
+			type: 'ambient'
 		},
 		{
-			name: 'fermenter_1',
-			id: '000004bcb49a',
-			gpio: 25,
-			control: "manual",
-			sv: "70"
+			name: 'fermenter_1'
+			label: 'Fermenter #1'
+			id: '000004bcb49a'
+			type: 'fermenter'
+			gpio: 25
 		},
 		{
-			name: 'fermenter_2',
-			id: '000004bd0d7b',
-			gpio: 8,
-			control: "pid",
-			sv: "70"
+			name: 'fermenter_2'
+			label: 'Fermenter #2'
+			id: '000004bd0d7b'
+			type: 'fermenter'
+			gpio: 8
 		}
 	]
 }

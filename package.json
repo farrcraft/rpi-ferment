@@ -1,0 +1,15 @@
+{
+  "name": "rpi-ferment",
+  "description": "fermentation temperature monitoring, logging & control application",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "node-statsd": "0.0.7",
+    "optimist": "0.4.0",
+    "rpi-gpio": "0.0.4",
+    "winston": "0.7.1"
+  },
+  "devDependencies": {
+  	"coffee-script": "1.6.2"
+  }
+}

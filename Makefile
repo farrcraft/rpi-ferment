@@ -7,13 +7,10 @@ build:
 	$(COFFEE_PATH) --compile --output . src/monitor.coffee
 
 modules:
-	npm install coffee-script
+	npm install
 	npm install https://github.com/sigsegv42/rpi-pid/tarball/master
-	npm install statsd@0.6.0
-	npm install node-statsd@0.0.7
-	npm install optimist@0.4.0
+	#npm install statsd@0.6.0
 	sudo npm install -g forever@0.10.0
-	npm install rpi-gpio@0.0.4
 
 clean:
 	rm -rf lib

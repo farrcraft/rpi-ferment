@@ -1,11 +1,18 @@
-fs = require 'fs'
+# Raspberry Pi Fermentation temperature logging & control application
+# (c) Joshua Farr <j.wgasa@gmail.com>
 
+fs = require 'fs'
 
 class Thermometer
 	# base directory for temperature sensor data files
 	basePath_: '/sys/bus/w1/devices/'
 	deviceFile_: '/w1_slave'
 	unit_: 'celsius'
+
+
+	constructor: (units) ->
+		@unit_ = units
+		return
 
 
 	# return an array of sensor serial numbers
