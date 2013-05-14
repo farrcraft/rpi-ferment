@@ -30,6 +30,7 @@ class Controller
 				@state_[sensor.name].channel = sensor.gpio
 		@io_ = new IO @debug_, 'out'
 		@sockets_ = new Sockets @
+		@sockets_.run()
 		@sampler_ = new Sampler @config_.pollFrequency, @config_.sensors, @config_.sensorUnit, @
 		return
 
