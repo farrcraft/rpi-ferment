@@ -13,10 +13,12 @@ class Sockets
 		return
 
 	run: () =>
+		config = @controller_.config()
 		if @controller_.debug()
-			console.log 'Listening for socket connections...'
-		app = http.createServer(@httpHandler)
-		socketio.listen(app)
+			console.log 'Listening for socket connections on port [' + config.ioPort + '] ...'
+		app = http.createServer @httpHandler
+		socketio.listen app
+		app.listen config.ioPort
 		socketio.sockets.on 'connection', @connectionHandler
 		return
 

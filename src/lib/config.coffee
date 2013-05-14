@@ -1,4 +1,5 @@
 module.exports = {
+	ioPort: 6001
 	pollFrequency: 1000
 	sensorUnit: 'farenheight'
 	sensors: [
