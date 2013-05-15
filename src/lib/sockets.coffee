@@ -23,59 +23,53 @@ class Sockets
 		return
 
 	connectionHandler: (socket) =>
-		###
-		  socket.emit('news', { hello: 'world' });
-		  socket.on('my other event', function (data) {
-		    console.log(data);
-		  });
-		###
 		# send config to socket
-		socket.on 'config', () ->
+		socket.on 'config', () =>
 			if @controller_.debug()
 				console.log 'Socket requested config'
-			socket.emit @controller_.config()
+			socket.emit 'config', @controller_.config()
 			return
 
 		# get gpio state for channel
-		socket.on 'getgpio', (channel) ->
+		socket.on 'getgpio', (channel) =>
 			state = @controller_.getGpio(channel)
-			socket.emit state
+			socket.emit 'gpio', state
 			return
 
 		# set gpio state for channel
-		socket.on 'setgpio', (channel, state) ->
+		socket.on 'setgpio', (channel, state) =>
 			if @controller_.debug()
 				console.log 'Socket requested GPIO channel [' + channel '] set to state [' + state ']'
 			@controller_.setGpio channel, state
 			return
 
 		# set sensor sv
-		socket.on 'setsv', (sensor, sv) ->
+		socket.on 'setsv', (sensor, sv) =>
 			if @controller_.debug()
 				console.log 'Socket requested sensor [' + sensor + '] SV set to [' + sv + ']'
 			@controller_.setSv sensor, sv
 			return
 
 		# get sensor sv
-		socket.on 'getsv', (sensor) ->
+		socket.on 'getsv', (sensor) =>
 			sv = @controller_.getSv sensor
-			socket.emit sv
+			socket.emit 'sv', sv
 			return
 
 		# get a sensor's last reading
-		socket.on 'getpv', (sensor) ->
+		socket.on 'getpv', (sensor) =>
 			pv = @controller_.getPv sensor
-			socket.emit pv
+			socket.emit 'pv', pv
 			return
 
 		# get a sensor's control mode
-		socket.on 'getmode', (sensor) ->
+		socket.on 'getmode', (sensor) =>
 			mode = @controller_.getMode sensor
-			socket.emit mode
+			socket.emit 'mode', mode
 			return
 
 		# set a sensor's control mode
-		socket.on 'setmode', (sensor, mode) ->
+		socket.on 'setmode', (sensor, mode) =>
 			if @controller_.debug()
 				console.log 'Socket requested sensor [' + sensor '] set to mode [' + mode + ']'
 			@controller_.setMode sensor, mode
