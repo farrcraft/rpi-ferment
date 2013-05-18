@@ -19,7 +19,9 @@ class Controller
 		@debug_ = debug
 		@config_ = config
 		if not nolog
-			statsd_ = new statsd()
+			if @debug_
+				console.log 'Creating statsd client...'
+			@statsd_ = new statsd()
 		for sensor in config.sensors
 			@state_[sensor.name] =
 				sv: 0
@@ -82,8 +84,12 @@ class Controller
 		if @debug_
 			console.log 'Processing sample value [' + value + '] for sensor [' + sensor + ']' 
 
+		statsdCallback = () =>
+			if @debug_
+				console.log 'statsd gauge data sent.'
+
 		if @statsd_
-			@statsd_.gauge sensor, value
+			@statsd_.gauge sensor, value, 1, statsdCallback
 
 		if not @state_[sensor].gpio?
 			return
