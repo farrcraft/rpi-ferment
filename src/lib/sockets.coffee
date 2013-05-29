@@ -39,7 +39,7 @@ class Sockets
 		# set gpio state for channel
 		socket.on 'setgpio', (channel, state) =>
 			if @controller_.debug()
-				console.log 'Socket requested GPIO channel [' + channel '] set to state [' + state ']'
+				console.log 'Socket requested GPIO channel [' + channel + '] set to state [' + state + ']'
 			@controller_.setGpio channel, state
 			return
 
