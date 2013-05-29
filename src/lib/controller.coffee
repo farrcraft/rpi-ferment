@@ -50,7 +50,7 @@ class Controller
 
 	setGpio: (sensor, value) =>
 		@state_[sensor].gpio = value
-		controlSignalCompletion = ->
+		controlSignalCompletion = =>
 			if @debug_
 				console.log 'GPIO channel state updated'
 			return
@@ -94,14 +94,14 @@ class Controller
 		if not @state_[sensor].gpio?
 			return
 
-		if @state_[sensor].mode is 'manual'
+		if @state_[sensor].mode is 'auto'
 			if value > @state_[sensor].sv and @state_[sensor].gpio
 				if @debug_
-					console.log 'Disabling gpio channel: ' + @state_[sensor].gpio
+					console.log 'Disabling gpio channel: ' + @state_[sensor].channel
 				@setGpio sensor, false
 			else if value < @state_[sensor].sv and not @state_[sensor].gpio
 				if @debug_
-					console.log 'Enabling gpio channel: ' + @state_[sensor].gpio
+					console.log 'Enabling gpio channel: ' + @state_[sensor].channel
 				@setGpio sensor, true
 		#	if pid attached to sensor
 		#		set current pv in pid
