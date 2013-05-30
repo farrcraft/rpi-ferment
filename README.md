@@ -12,6 +12,9 @@ A tool to monitor temperature sensor data, log it and make IO responses.
 - rpi-gpio
 - rpi-pid
 - forever
+- mongoose
+- express
+- socket.io
 
 The _make modules_ command uses npm to install all of the application dependencies.  All modules are installed locally in the node_modules directory except for forever.  Forever is preferred to be installed globally and requires sudo permission to install this way.
 
@@ -55,7 +58,7 @@ The temperature set value used for determining when to send a control signal.  T
 
 #### control
 
-The control mode can be *none*, *manual*, or *pid*.  
+The control mode can be *none*, *auto*, *manual*, or *pid*.  
 
 ##### none
 
@@ -74,6 +77,8 @@ PID control mode uses a PID controller algorithm to generate the control signals
 
 When invoked without any options, the application enters continuous polling mode and does not exit.  The frequency of polling and list of sensors to be polled are defined in the *lib/config.js* file.
 
+The default monitoring mode creates a socket.io server on port 6001 and an Express app server on port 3010.  These ports are customizable in the *src/lib/config.coffee* source file.  Any changes to these ports must also be mirrored in the frontend application.
+
 The list of sensors needs to be configured with the actual sensor ids before invoking this mode.  While the serial numbers are printed directly on the sensors, it is much easier to query them programmatically instead.  Invoking the application with the *--sensors* option does this, printing the serial number of each connected temperature sensor.
 
 ``` bash
@@ -85,6 +90,10 @@ It is also possible to query a single sensor for the current temperature once an
 ``` bash
    $ node monitor.js --query 000004bd9529
 ```
+### Additional CLI options
+
+* --debug - generate more verbose output on stdout
+* --nolog - do not send any data to statsd
 
 ### Output Control
 

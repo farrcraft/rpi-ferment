@@ -5,7 +5,7 @@ statsd 		= require('node-statsd').StatsD
 Sampler		= require './sampler.js'
 IO 			= require './io.js'
 Sockets		= require './sockets.js'
-ExpressApp 	= require './app.js'
+ExpressApp 	= require './server.js'
 
 class Controller
 	config_: {}
