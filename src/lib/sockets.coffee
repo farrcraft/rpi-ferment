@@ -3,6 +3,7 @@ socketio	 = require 'socket.io'
 
 class Sockets
 	controller_: null
+	io_: null
 
 	constructor: (controller) ->
 		@controller_ = controller
@@ -17,9 +18,9 @@ class Sockets
 		if @controller_.debug()
 			console.log 'Listening for socket connections on port [' + config.ioPort + '] ...'
 		app = http.createServer @httpHandler
-		io = socketio.listen app
+		@io_ = socketio.listen app
 		app.listen config.ioPort
-		io.sockets.on 'connection', @connectionHandler
+		@io_.sockets.on 'connection', @connectionHandler
 		return
 
 	connectionHandler: (socket) =>

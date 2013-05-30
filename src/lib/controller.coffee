@@ -53,6 +53,10 @@ class Controller
 		controlSignalCompletion = =>
 			if @debug_
 				console.log 'GPIO channel state updated'
+				data =
+					sensor: sensor
+					state: value
+				@sockets_.io_.sockets.emit 'setgpio', data
 			return
 		controlName = sensor + '_gpio_' + @state_[sensor].channel
 		@io_.signal @state_[sensor].channel, value, controlSignalCompletion
@@ -66,6 +70,10 @@ class Controller
 
 	setSv: (sensor, value) =>
 		@state_[sensor].sv = value
+		data =
+			sensor: sensor
+			value: value
+		@sockets_.io_.sockets.emit 'setsv', data
 		return
 
 	getSv: (sensor) =>
