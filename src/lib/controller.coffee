@@ -5,6 +5,7 @@ statsd 		= require('node-statsd').StatsD
 Sampler		= require './sampler.js'
 IO 			= require './io.js'
 Sockets		= require './sockets.js'
+ExpressApp 	= require './app.js'
 
 class Controller
 	config_: {}
@@ -34,6 +35,7 @@ class Controller
 		@sockets_ = new Sockets @
 		@sockets_.run()
 		@sampler_ = new Sampler @config_.pollFrequency, @config_.sensors, @config_.sensorUnit, @
+		ExpressApp.listen @config_.apiPort
 		return
 
 	run: () =>

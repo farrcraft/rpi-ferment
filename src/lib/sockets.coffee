@@ -1,3 +1,6 @@
+# Raspberry Pi Fermentation temperature logging & control application
+# (c) Joshua Farr <j.wgasa@gmail.com>
+
 http 		 = require 'http'
 socketio	 = require 'socket.io'
 

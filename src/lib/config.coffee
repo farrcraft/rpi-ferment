@@ -1,4 +1,8 @@
+# Raspberry Pi Fermentation temperature logging & control application
+# (c) Joshua Farr <j.wgasa@gmail.com>
+
 module.exports = {
+	apiPort: 3010
 	ioPort: 6001
 	pollFrequency: 1000
 	sensorUnit: 'farenheight'

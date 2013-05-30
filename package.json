@@ -1,6 +1,7 @@
 {
+  "author": "Joshua Farr",
   "name": "rpi-ferment",
-  "description": "fermentation temperature monitoring, logging & control application",
+  "description": "Raspberry Pi fermentation temperature monitoring, logging & control application",
   "version": "0.0.2",
   "private": true,
   "dependencies": {
@@ -8,9 +9,19 @@
     "optimist": "0.4.0",
     "rpi-gpio": "0.0.4",
     "winston": "0.7.1",
-    "socket.io": "0.9.14"
+    "socket.io": "0.9.14",
+    "express": "3.2.0",
+    "mongoose": "3.6.7"
   },
   "devDependencies": {
   	"coffee-script": "1.6.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com/sigsegv42/rpi-ferment"
+  },
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
   }
 }
