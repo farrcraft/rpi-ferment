@@ -35,6 +35,8 @@ class Controller
 		@sockets_ = new Sockets @
 		@sockets_.run()
 		@sampler_ = new Sampler @config_.pollFrequency, @config_.sensors, @config_.sensorUnit, @
+		if @debug_
+			console.log 'Express API listening on port [' + @config_.apiPort + ']'
 		ExpressApp.listen @config_.apiPort
 		return
 

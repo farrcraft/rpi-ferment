@@ -10,9 +10,12 @@ db				= require './services/db.js'
 #CORS middleware
 allowedDomains = '*'
 allowCrossDomain = (req, res, next) ->
-		res.header 'Access-Control-Allow-Origin', config.allowedDomains
-		res.header 'Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE'
-		res.header 'Access-Control-Allow-Headers', 'Content-Type'
+	res.header 'Access-Control-Allow-Origin', allowedDomains
+	res.header 'Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE'
+	res.header 'Access-Control-Allow-Headers', 'Content-Type'
+	if req.method is 'OPTIONS'
+		res.send 200
+	else
 		next()
 
 exports.configure = (Express, app) ->
