@@ -7,7 +7,7 @@ logger			= require('./services/logger.js').logger
 profileRouter 	= require './routes/profile.js'
 db				= require './services/db.js'
 
-#CORS middleware
+# CORS middleware
 allowedDomains = '*'
 allowCrossDomain = (req, res, next) ->
 	res.header 'Access-Control-Allow-Origin', allowedDomains
