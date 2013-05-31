@@ -6,6 +6,10 @@ Sampler		= require './sampler.js'
 IO 			= require './io.js'
 Sockets		= require './sockets.js'
 ExpressApp 	= require './server.js'
+mongoose 	= require 'mongoose'
+
+require './orm/profile.js'
+
 
 class Controller
 	config_: {}
@@ -29,8 +33,23 @@ class Controller
 				pv: 0
 				gpio: false
 				mode: 'manual'
+				profile: null
 			if sensor.type isnt 'ambient'
 				@state_[sensor.name].channel = sensor.gpio
+
+		# load active profiles
+		model = mongoose.model 'Profile'
+		query = model.find()
+		query.where 'active', true
+		profileCallback = (err, profiles) =>
+			if err
+				return
+			for profile in profiles
+				@state_[profile.sensor] = profile
+				if @debug_
+					console.log 'Bound active profile [' + profile.name + '] to sensor [' + profile.sensor + ']'
+		query.exec profileCallback
+
 		@io_ = new IO @debug_, 'out'
 		@sockets_ = new Sockets @
 		@sockets_.run()
