@@ -60,6 +60,10 @@ module.exports.routes = (app) ->
 			profile.active = req.body.active
 			profile.overrides = req.body.overrides
 
+			if profile.active is true
+				controller = @get 'controller'
+				controller.state_[profile.sensor].profile = profile
+
 			profile.save (err) ->
 				if not err
 					res.send profile
