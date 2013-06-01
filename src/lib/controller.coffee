@@ -45,7 +45,7 @@ class Controller
 			if err
 				return
 			for profile in profiles
-				@state_[profile.sensor] = profile
+				@state_[profile.sensor].profile = profile
 				@state_[profile.sensor].mode = profile.control_mode
 				if @debug_
 					console.log 'Bound active profile [' + profile.name + '] to sensor [' + profile.sensor + ']'
