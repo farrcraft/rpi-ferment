@@ -46,6 +46,7 @@ class Controller
 				return
 			for profile in profiles
 				@state_[profile.sensor] = profile
+				@state_[profile.sensor].mode = profile.control_mode
 				if @debug_
 					console.log 'Bound active profile [' + profile.name + '] to sensor [' + profile.sensor + ']'
 		query.exec profileCallback
@@ -140,14 +141,22 @@ class Controller
 				if stepEnd < now
 					activeStep = step
 					break
+
 			# check if there is an override currently in effect
 			if @state_[sensor].profile.overrides.length > 0
 				if @state_[sensor].overrides[@state_[sensor].profile.overrides.length].action isnt 'resume'
 					override = true
 
+			# has the mode changed?
+			if @state_[sensor].profile.control_mode isnt @state_[sensor].mode
+				if @debug_
+					console.log 'Switching sensor [' + sensor + '] control mode from [' + @state_[sensor].mode + '] to [' + @state_[sensor].profile.control_mode + ']'
+				@state_[sensor].mode = @state_[sensor].profile.control_mode
+
+			# has the SV changed?
 			if activeStep isnt null and @state_[sensor].sv isnt activeStep.temperature
 				if @debug_
-					console.log 'Setting sensor [' + sensor + '] SV to Step [' + activeStep.name + '] temperature [' + activeStep.temperature + ']'
+					console.log 'Setting sensor [' + sensor + '] SV to Profile [' + @state_[sensor].profile.name + '] Step [' + activeStep.name + '] temperature [' + activeStep.temperature + ']'
 				@state_[sensor].sv = activeStep.temperature
 
 

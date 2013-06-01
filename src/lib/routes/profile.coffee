@@ -61,12 +61,23 @@ module.exports.routes = (app) ->
 			profile.active = req.body.active
 			profile.overrides = req.body.overrides
 
-			if profile.active is true and oldState isnt true
+			controller = app.get 'controller'
+
+			oldId = null
+			if controller.state_[profile.sensor].profile isnt null
+				oldId = controller.state_[profile.sensor].profile._id
+
+			if oldId isnt profile._id and profile.active is true
+				# new profile has been made active
 				profile.start_time = new Date()
-				controller = app.get 'controller'
 				controller.state_[profile.sensor].profile = profile
 				if controller.debug_
-					console.log 'Bound active profile [' + profile.name + '] to sensor [' + profile.sensor + ']'
+					console.log 'Bound new active profile [' + profile.name + '] to sensor [' + profile.sensor + ']'
+			else if oldId is profile._id and profile.active isnt true
+				# current profile hasn't changed, but has been deactivated
+				controller.state_[profile.sensor].profile = null
+				if controller.debug_
+					console.log 'Deactivated active profile [' + profile.name + '] on sensor [' + profile.sensor + ']'
 
 			profile.save (err) ->
 				if not err
