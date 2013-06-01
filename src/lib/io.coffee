@@ -59,8 +59,9 @@ class IO
 					direction = gpio.DIR_IN
 				gpio.setup sensor.gpio, direction, next
 				@controlChannels_[sensor.gpio] = 
-					enabled: false,
-					locked: false,
+					direction: @direction_
+					enabled: false
+					locked: false
 					initialized: false
 		# handler for change events
 		gpio.on 'change', @change

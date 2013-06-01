@@ -61,8 +61,8 @@ class Cli
 				io.state true
 			io.signal argv.control, state, end
 
-		io = new IO(argv.debug, 'out')
-		io.setup(config, send)
+		io = new IO argv.debug, 'out'
+		io.setup config, send
 		true
 
 
@@ -78,8 +78,8 @@ class Cli
 			return
 		query = () ->
 			io.status argv.status, status
-		io = new IO(argv.debug, 'in')
-		io.setup(config, query)
+		io = new IO argv.debug, 'in'
+		io.setup config, query
 		true
 
 module.exports = Cli

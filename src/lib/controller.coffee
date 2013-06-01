@@ -113,6 +113,50 @@ class Controller
 	getMode: (sensor) =>
 		@state_[sensor].mode
 
+	# update the current sensor state based on the active profile
+	# @return boolean true if the profile is currently overridden
+	checkSensorProfile: () =>
+		override = false
+		if @state_[sensor].profile is null
+			override
+
+		# find the current step
+		activeStep = null
+		now = new Date()
+		profileStart = @state_[sensor].profile.start_time
+		if profileStart is undefined
+			profileStart = new Date()
+			if @debug_
+				console.log 'Enabling profile at [' + profileStart.toString() + ']'
+			@state_[sensor].profile.start_time = profileStart
+			@state_[sensor].profile.save()
+		for step in @state_[sensor].profile.steps
+			stepEnd = new Date()
+			stepEnd.setDate profileStart.getDate() + step.duration
+			if stepEnd > now
+				activeStep = step
+				break
+
+		# check if there is an override currently in effect
+		if @state_[sensor].profile.overrides.length > 0
+			if @state_[sensor].overrides[@state_[sensor].profile.overrides.length].action isnt 'resume'
+				override = true
+
+		# has the mode changed?
+		if @state_[sensor].profile.control_mode isnt @state_[sensor].mode
+			if @debug_
+				console.log 'Switching sensor [' + sensor + '] control mode from [' + @state_[sensor].mode + '] to [' + @state_[sensor].profile.control_mode + ']'
+			@state_[sensor].mode = @state_[sensor].profile.control_mode
+
+		# has the SV changed?
+		if activeStep isnt null and @state_[sensor].sv isnt activeStep.temperature
+			if @debug_
+				console.log 'Setting sensor [' + sensor + '] SV to Profile [' + @state_[sensor].profile.name + '] Step [' + activeStep.name + '] temperature [' + activeStep.temperature + ']'
+			@state_[sensor].sv = activeStep.temperature
+
+		override
+
+
 	processSample: (sensor, value) =>
 		@state_[sensor].pv = value
 
@@ -129,36 +173,7 @@ class Controller
 		if not @state_[sensor].gpio?
 			return
 
-		override = false
-		if @state_[sensor].profile isnt null
-			# find the current step
-			activeStep = null
-			now = new Date()
-			profileStart = @state_[sensor].profile.start_time
-			for step in @state_[sensor].profile.steps
-				stepEnd = new Date()
-				stepEnd.setDate profileStart.getDate() + step.duration
-				if stepEnd < now
-					activeStep = step
-					break
-
-			# check if there is an override currently in effect
-			if @state_[sensor].profile.overrides.length > 0
-				if @state_[sensor].overrides[@state_[sensor].profile.overrides.length].action isnt 'resume'
-					override = true
-
-			# has the mode changed?
-			if @state_[sensor].profile.control_mode isnt @state_[sensor].mode
-				if @debug_
-					console.log 'Switching sensor [' + sensor + '] control mode from [' + @state_[sensor].mode + '] to [' + @state_[sensor].profile.control_mode + ']'
-				@state_[sensor].mode = @state_[sensor].profile.control_mode
-
-			# has the SV changed?
-			if activeStep isnt null and @state_[sensor].sv isnt activeStep.temperature
-				if @debug_
-					console.log 'Setting sensor [' + sensor + '] SV to Profile [' + @state_[sensor].profile.name + '] Step [' + activeStep.name + '] temperature [' + activeStep.temperature + ']'
-				@state_[sensor].sv = activeStep.temperature
-
+		override = @checkSensorProfile()
 
 		if @state_[sensor].mode is 'auto' and override isnt true
 			if value > @state_[sensor].sv and @state_[sensor].gpio
