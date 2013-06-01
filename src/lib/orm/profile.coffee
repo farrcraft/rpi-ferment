@@ -6,6 +6,10 @@ Schema		= mongoose.Schema
 
 
 # Schema for mongo fermentation profile collection
+# override actions:
+#	on - force heater on
+#	off - force heater off
+#	resume - resume current profile step
 Profile = new Schema
 
 Profile.add
@@ -24,6 +28,11 @@ Profile.add
 	]
 	overrides: [
 		action: String
+		time: Date
+	]
+	history: [
+		action: String
+		state: String
 		time: Date
 	]
 	updated_at: Boolean

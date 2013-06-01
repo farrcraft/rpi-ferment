@@ -57,12 +57,16 @@ module.exports.routes = (app) ->
 			profile.control_mode = req.body.control_mode
 			profile.sensor = req.body.sensor
 			profile.steps = req.body.steps
+			oldState = profile.active
 			profile.active = req.body.active
 			profile.overrides = req.body.overrides
 
-			if profile.active is true
-				controller = @get 'controller'
+			if profile.active is true and oldState isnt true
+				profile.start_time = new Date()
+				controller = app.get 'controller'
 				controller.state_[profile.sensor].profile = profile
+				if controller.debug_
+					console.log 'Bound active profile [' + profile.name + '] to sensor [' + profile.sensor + ']'
 
 			profile.save (err) ->
 				if not err

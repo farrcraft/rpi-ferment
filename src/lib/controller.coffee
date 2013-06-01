@@ -128,7 +128,30 @@ class Controller
 		if not @state_[sensor].gpio?
 			return
 
-		if @state_[sensor].mode is 'auto'
+		override = false
+		if @state_[sensor].profile isnt null
+			# find the current step
+			activeStep = null
+			now = new Date()
+			profileStart = @state_[sensor].profile.start_time
+			for step in @state_[sensor].profile.steps
+				stepEnd = new Date()
+				stepEnd.setDate profileStart.getDate() + step.duration
+				if stepEnd < now
+					activeStep = step
+					break
+			# check if there is an override currently in effect
+			if @state_[sensor].profile.overrides.length > 0
+				if @state_[sensor].overrides[@state_[sensor].profile.overrides.length].action isnt 'resume'
+					override = true
+
+			if activeStep isnt null and @state_[sensor].sv isnt activeStep.temperature
+				if @debug_
+					console.log 'Setting sensor [' + sensor + '] SV to Step [' + activeStep.name + '] temperature [' + activeStep.temperature + ']'
+				@state_[sensor].sv = activeStep.temperature
+
+
+		if @state_[sensor].mode is 'auto' and override isnt true
 			if value > @state_[sensor].sv and @state_[sensor].gpio
 				if @debug_
 					console.log 'Disabling gpio channel: ' + @state_[sensor].channel
