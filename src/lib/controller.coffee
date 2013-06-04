@@ -118,8 +118,10 @@ class Controller
 		@state_[sensor].mode
 
 	# update the current sensor state based on the active profile
+	#
+	# @param string sensor sensor name
 	# @return boolean true if the profile is currently overridden
-	checkSensorProfile: () =>
+	checkSensorProfile: (sensor) =>
 		override = false
 		if @state_[sensor].profile is null
 			override
@@ -177,7 +179,7 @@ class Controller
 		if not @state_[sensor].gpio?
 			return
 
-		override = @checkSensorProfile()
+		override = @checkSensorProfile sensor
 
 		if @state_[sensor].mode is 'auto' and override isnt true
 			if value > @state_[sensor].sv and @state_[sensor].gpio
