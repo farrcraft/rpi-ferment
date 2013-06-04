@@ -48,7 +48,7 @@ class Sampler extends EventEmitter
 		for sensor in @sensors_
 			# poll sensor to get current temperature reading
 			sensorReading = @thermo_.temperature sensor.id
-			if debug_
+			if @debug_
 				console.log sensor.name + '[' + sensor.id + '] : ' + sensorReading
 
 			@emit 'read', sensor.name, sensorReading
