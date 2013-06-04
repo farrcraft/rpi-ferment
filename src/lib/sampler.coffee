@@ -5,23 +5,28 @@
 Thermometer	 = require './thermometer.js'
 EventEmitter = require('events').EventEmitter
 
-
+# The Sampler is used to continuously take temperature readings from temperature sensors.
 class Sampler extends EventEmitter
 	shutdown_: false
-	controller_: null
 	frequency_: 1000
 	sensors_ : {}
 	thermo_: null
 	sampling_: false
 
+	# Construct a new sampler instance
+	#
+	# @param integer frequency how often in ms to poll the sensors
+	# @param array sensors array of sensors to be sampled
+	# @param string units celsius or farenheight
 	constructor: (frequency, sensors, units, controller) ->
 		@sensors_ = sensors
 		@frequency_ = frequency
-		@controller_ = controller
 		@thermo_ = new Thermometer units
 		@on 'sample', @sample
 
 
+	# Start sampling by scheduling the first sample
+	# There will be a delay of @frequency_ before the first sample is taken.
 	startSampling: () =>
 		if @sampling_
 			return
@@ -35,7 +40,7 @@ class Sampler extends EventEmitter
 		@emit 'sample'
 		return
 
-
+	# Take a temperature sample from each sensor
 	sample: () =>
 		# for each configured sensor
 		for sensor in @sensors_
@@ -44,7 +49,7 @@ class Sampler extends EventEmitter
 			if @controller_.debug()
 				console.log sensor.name + '[' + sensor.id + '] : ' + sensorReading
 
-			@controller_.processSample sensor.name, sensorReading
+			@emit 'read', sensor.name, sensorReading
 
 		# schedule next sample
 		if not @shutdown_

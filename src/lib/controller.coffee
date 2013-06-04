@@ -44,9 +44,12 @@ class Controller
 		query.exec @loadProfiles
 
 		@io_ = new IO @debug_, 'out'
+
 		@sockets_ = new Sockets @
 		@sockets_.run()
+
 		@sampler_ = new Sampler @config_.pollFrequency, @config_.sensors, @config_.sensorUnit, @
+		@sampler_.on 'read', @processSample
 
 		ExpressApp.set 'controller', @
 		if @debug_
@@ -55,6 +58,7 @@ class Controller
 
 		return
 
+	# Process profiles loaded from the db
 	loadProfiles: (err, profiles) =>
 		if err
 			return

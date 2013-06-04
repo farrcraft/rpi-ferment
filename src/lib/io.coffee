@@ -61,6 +61,10 @@ class IO
 		return
 
 	# setup a single GPIO channel for reading or writing
+	#
+	# @param integer channel gpio pin number
+	# @param string direction in or out for reading or writing the pin state
+	# @param function next callback executed after pin is setup
 	setupChannel: (channel, direction, next) =>
 		dir = gpio.DIR_OUT
 		mode = 'writing'
@@ -69,6 +73,8 @@ class IO
 			mode = 'reading'
 		if @debug_
 			console.log 'Enabling GPIO ' + channel + ' for ' + mode + '...'
+		# Note - setup will unexport the pin if it is already exported and then re-export it.
+		# It will also set the direction which has the byproduct of resetting the pin state back to 0.
 		gpio.setup channel, dir, next
 		@controlChannels_[channel] = 
 			direction: direction
