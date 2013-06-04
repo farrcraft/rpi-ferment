@@ -149,7 +149,7 @@ class Controller
 
 		# check if there is an override currently in effect
 		if @state_[sensor].profile.overrides.length > 0
-			if @state_[sensor].overrides[@state_[sensor].profile.overrides.length-1].action isnt 'resume'
+			if @state_[sensor].profile.overrides[@state_[sensor].profile.overrides.length-1].action isnt 'resume'
 				override = true
 
 		# has the mode changed?
