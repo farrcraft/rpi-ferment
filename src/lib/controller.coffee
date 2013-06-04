@@ -124,7 +124,7 @@ class Controller
 	checkSensorProfile: (sensor) =>
 		override = false
 		if @state_[sensor].profile is null
-			override
+			return override
 
 		# find the current step
 		activeStep = null
