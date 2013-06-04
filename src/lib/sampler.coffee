@@ -12,15 +12,17 @@ class Sampler extends EventEmitter
 	sensors_ : {}
 	thermo_: null
 	sampling_: false
+	debug_: false
 
 	# Construct a new sampler instance
 	#
 	# @param integer frequency how often in ms to poll the sensors
 	# @param array sensors array of sensors to be sampled
 	# @param string units celsius or farenheight
-	constructor: (frequency, sensors, units, controller) ->
+	constructor: (frequency, sensors, units, debug) ->
 		@sensors_ = sensors
 		@frequency_ = frequency
+		@debug_ = debug
 		@thermo_ = new Thermometer units
 		@on 'sample', @sample
 
@@ -30,7 +32,7 @@ class Sampler extends EventEmitter
 	startSampling: () =>
 		if @sampling_
 			return
-		if @controller_.debug()
+		if @debug_
 			console.log 'Scheduling sensor sampling...'
 		@scheduleSample()
 		return
@@ -46,7 +48,7 @@ class Sampler extends EventEmitter
 		for sensor in @sensors_
 			# poll sensor to get current temperature reading
 			sensorReading = @thermo_.temperature sensor.id
-			if @controller_.debug()
+			if debug_
 				console.log sensor.name + '[' + sensor.id + '] : ' + sensorReading
 
 			@emit 'read', sensor.name, sensorReading

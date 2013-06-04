@@ -48,7 +48,7 @@ class Controller
 		@sockets_ = new Sockets @
 		@sockets_.run()
 
-		@sampler_ = new Sampler @config_.pollFrequency, @config_.sensors, @config_.sensorUnit, @
+		@sampler_ = new Sampler @config_.pollFrequency, @config_.sensors, @config_.sensorUnit, @debug_
 		@sampler_.on 'read', @processSample
 
 		ExpressApp.set 'controller', @
