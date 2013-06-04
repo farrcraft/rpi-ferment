@@ -20,6 +20,11 @@ class Controller
 	sampler_: null
 	sockets_: null
 
+	# Default constructor
+	#
+	# @param array config sensor configuration array
+	# @param bool debug verbose debugging output flag
+	# @param bool nolog flag indicating whether to log to statsd or not
 	constructor: (config, debug, nolog) ->
 		@debug_ = debug
 		@config_ = config
@@ -59,31 +64,58 @@ class Controller
 		return
 
 	# Process profiles loaded from the db
+	#
+	# @param err error message defined if there was an error loading profiles
+	# @param array profiles collection of profile documents
 	loadProfiles: (err, profiles) =>
 		if err
+			if @debug_
+				console.log err
 			return
 		for profile in profiles
 			@state_[profile.sensor].profile = profile
 			@state_[profile.sensor].mode = profile.control_mode
+			if profile.overrides.length > 0 and profile.overrides[profile.overrides.length - 1].action isnt 'resume'
+				value = false
+				if profile.overrides[profile.overrides.length - 1].action is 'on'
+					value = true
+				@setGpio profile.sensor, value
 			if @debug_
 				console.log 'Bound active profile [' + profile.name + '] to sensor [' + profile.sensor + ']'
 
+	# Begin sampling sensor data
 	run: () =>
 		for sensor in @config_.sensors
 			if sensor.gpio?
 				@io_.setupChannel sensor.gpio, 'out'
 		@sampler_.startSampling()
 
+	# Get debug status flag setting
+	#
+	# @return bool debug setting
 	debug: () =>
 		@debug_
 
+	# Get sensor configuration array
+	#
+	# @return array configuration array
 	config: () =>
 		@config_
 
+	# Get GPIO state of the channel associated with a sensor
+	#
+	# @param string sensor name of sensor
+	# @return bool GPIO state
 	getGpio: (sensor) =>
 		@state_[sensor].gpio
 
+	# Set the GPIO state of the channel associated with a sensor
+	#
+	# @param string sensor name of the sensor
+	# @param bool new GPIO state
 	setGpio: (sensor, value) =>
+		if @state_[sensor].gpio is value
+			return
 		@state_[sensor].gpio = value
 		controlSignalCompletion = =>
 			if @debug_
@@ -103,6 +135,10 @@ class Controller
 			@statsd_.increment controlName
 		return
 
+	# Set a new Set Value for a sensor
+	#
+	# @param string sensor name of the sensor
+	# @param integer value new SV
 	setSv: (sensor, value) =>
 		@state_[sensor].sv = value
 		data =
@@ -111,13 +147,24 @@ class Controller
 		@sockets_.io_.sockets.emit 'setsv', data
 		return
 
+	# Get the current Set Value for a sensor
+	#
+	# @return integer current SV
 	getSv: (sensor) =>
 		@state_[sensor].sv
 
+	# Set the control mode of a sensor
+	#
+	# @param string sensor name of the sensor
+	# @param string mode one of: auto, manual, pid, none
 	setMode: (sensor, mode) =>
 		@state_[sensor].mode = mode
 		return
 
+	# Get the current control mode of a sensor
+	#
+	# @param string sensor
+	# @return string current mode setting
 	getMode: (sensor) =>
 		@state_[sensor].mode
 
@@ -166,7 +213,10 @@ class Controller
 
 		override
 
-
+	# Process a temperature reading sample from a sensor
+	#
+	# @param string sensor name of the sensor
+	# @param integer value current sensor reading
 	processSample: (sensor, value) =>
 		@state_[sensor].pv = value
 

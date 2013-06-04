@@ -37,7 +37,10 @@ class Sockets
 		# get gpio state for channel
 		socket.on 'getgpio', (channel) =>
 			state = @controller_.getGpio(channel)
-			socket.emit 'gpio', state
+			data =
+				channel: channel
+				state: state
+			socket.emit 'gpio', data
 			return
 
 		# set gpio state for channel
@@ -57,19 +60,28 @@ class Sockets
 		# get sensor sv
 		socket.on 'getsv', (sensor) =>
 			sv = @controller_.getSv sensor
-			socket.emit 'sv', sv
+			data =
+				sensor: sensor
+				sv: sv
+			socket.emit 'sv', data
 			return
 
 		# get a sensor's last reading
 		socket.on 'getpv', (sensor) =>
 			pv = @controller_.getPv sensor
-			socket.emit 'pv', pv
+			data = 
+				sensor: sensor
+				pv: pv
+			socket.emit 'pv', data
 			return
 
 		# get a sensor's control mode
 		socket.on 'getmode', (sensor) =>
 			mode = @controller_.getMode sensor
-			socket.emit 'mode', mode
+			data = 
+				sensor: sensor
+				mode: mode
+			socket.emit 'mode', data
 			return
 
 		# set a sensor's control mode
