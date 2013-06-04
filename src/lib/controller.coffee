@@ -41,15 +41,7 @@ class Controller
 		model = mongoose.model 'Profile'
 		query = model.find()
 		query.where 'active', true
-		profileCallback = (err, profiles) =>
-			if err
-				return
-			for profile in profiles
-				@state_[profile.sensor].profile = profile
-				@state_[profile.sensor].mode = profile.control_mode
-				if @debug_
-					console.log 'Bound active profile [' + profile.name + '] to sensor [' + profile.sensor + ']'
-		query.exec profileCallback
+		query.exec @loadProfiles
 
 		@io_ = new IO @debug_, 'out'
 		@sockets_ = new Sockets @
@@ -63,8 +55,20 @@ class Controller
 
 		return
 
+	loadProfiles: (err, profiles) =>
+		if err
+			return
+		for profile in profiles
+			@state_[profile.sensor].profile = profile
+			@state_[profile.sensor].mode = profile.control_mode
+			if @debug_
+				console.log 'Bound active profile [' + profile.name + '] to sensor [' + profile.sensor + ']'
+
 	run: () =>
-		@io_.setup @config_, @sampler_.startSampling
+		for sensor in @config_.sensors
+			if sensor.gpio?
+				@io_.setupChannel sensor.gpio, 'out'
+		@sampler_.startSampling()
 
 	debug: () =>
 		@debug_

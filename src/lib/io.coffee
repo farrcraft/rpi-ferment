@@ -12,6 +12,11 @@ class IO
 	constructor: (debug, direction) ->
 		@debug_ = debug
 		@direction_ = direction
+		gpio.on 'export', @export
+		# use the gpio channel names and not the actual pin numbers to reference gpio channels
+		gpio.setMode gpio.MODE_BCM
+		# handler for change events
+		gpio.on 'change', @change
 		return
 
 	# callback after gpio pin state change event completes
@@ -46,26 +51,30 @@ class IO
 		return
 
 	# enable access to gpio pins for each sensor with an active control mode
+	# 
+	# @param array config sensor configuration
+	# @param function next callback after gpio channel is configured
 	setup: (config, next) =>
-		gpio.on 'export', @export
-		# use the gpio channel names and not the actual pin numbers to reference gpio channels
-		gpio.setMode gpio.MODE_BCM
 		for sensor in config.sensors
 			if sensor.gpio?
-				if @debug_
-					console.log 'Enabling GPIO ' + sensor.gpio + ' for writing...'
-				direction = gpio.DIR_OUT
-				if @direction_ is 'in'
-					direction = gpio.DIR_IN
-				gpio.setup sensor.gpio, direction, next
-				@controlChannels_[sensor.gpio] = 
-					direction: @direction_
-					enabled: false
-					locked: false
-					initialized: false
-		# handler for change events
-		gpio.on 'change', @change
+				@setupChannel sensor.gpio, @direction_, next
 		return
+
+	# setup a single GPIO channel for reading or writing
+	setupChannel: (channel, direction, next) =>
+		dir = gpio.DIR_OUT
+		mode = 'writing'
+		if direction is 'in'
+			dir = gpio.DIR_IN
+			mode = 'reading'
+		if @debug_
+			console.log 'Enabling GPIO ' + channel + ' for ' + mode + '...'
+		gpio.setup channel, dir, next
+		@controlChannels_[channel] = 
+			direction: direction
+			enabled: false
+			locked: false
+			initialized: false
 
 	# force internal state flag to a new state
 	#
