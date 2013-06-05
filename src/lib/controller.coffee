@@ -19,6 +19,7 @@ class Controller
 	statsd_: null
 	sampler_: null
 	sockets_: null
+	profiles_: []
 
 	# Default constructor
 	#
@@ -72,6 +73,7 @@ class Controller
 			if @debug_
 				console.log err
 			return
+		@profiles_ = profiles
 		for profile in profiles
 			@state_[profile.sensor].profile = profile
 			@state_[profile.sensor].mode = profile.control_mode
