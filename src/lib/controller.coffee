@@ -183,18 +183,56 @@ class Controller
 		activeStep = null
 		now = new Date()
 		profileStart = @state_[sensor].profile.start_time
+		modified = false
+		# active profile started for the first time
 		if profileStart is undefined
 			profileStart = new Date()
 			if @debug_
 				console.log 'Enabling profile at [' + profileStart.toString() + ']'
 			@state_[sensor].profile.start_time = profileStart
-			@state_[sensor].profile.save()
+			history = 
+				action: 'start_profile'
+				state: 'on'
+				time: profileStart
+			@state_[sensor].profile.history.push history
+			modified = true
+
+		profileDuration = 0
+		# find active step
 		for step in @state_[sensor].profile.steps
+			profileDuration += step.duration
+			if step.completed is true
+				continue
 			stepEnd = new Date()
-			stepEnd.setDate profileStart.getDate() + step.duration
+			stepEnd.setDate profileStart.getDate() + profileDuration
 			if stepEnd > now
 				activeStep = step
+				if step.active is false
+					step.active = true
+					step.start_time = now
+					modified = true
+					console.log 'Enabling step [' + step.name + '] at [' + now.toString() + ']'
+					history = 
+						action: 'start_step'
+						state: 'on'
+						time: now
+					@state_[sensor].profile.history.push history
 				break
+			else
+				if step.active is true
+					step.end_time = now
+					step.active = false
+				step.completed = true
+				modified = true
+				console.log 'Completed step [' + step.name + '] at [' + now.toString() + ']'
+				history = 
+					action: 'end_step'
+					state: 'off'
+					time: now
+				@state_[sensor].profile.history.push history
+
+		if modified is true
+			@state_[sensor].profile.save()
 
 		# check if there is an override currently in effect
 		if @state_[sensor].profile.overrides.length > 0

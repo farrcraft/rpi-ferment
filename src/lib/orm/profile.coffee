@@ -6,10 +6,13 @@ Schema		= mongoose.Schema
 
 
 # Schema for mongo fermentation profile collection
-# override actions:
+# overrides[n].action:
 #	on - force heater on
 #	off - force heater off
 #	resume - resume current profile step
+# steps[n].unit:
+#	days
+#	hours
 Profile = new Schema
 
 Profile.add
@@ -25,6 +28,10 @@ Profile.add
 		unit: String
 		temperature: Number
 		order: Number
+		completed: Boolean
+		start_time: Date
+		end_time: Date
+		active: Boolean
 	]
 	overrides: [
 		action: String

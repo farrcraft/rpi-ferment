@@ -5,16 +5,16 @@ A tool to monitor temperature sensor data, log it and make IO responses.
 
 ## Dependencies
 
-- coffee-script
-- statsd
-- node-statsd
-- optimist
-- rpi-gpio
-- rpi-pid
-- forever
-- mongoose
-- express
-- socket.io
+- [CoffeeScript](http://coffeescript.org/)
+- [StatsD](https://github.com/etsy/statsd/)
+- [node-statsd](https://github.com/sivy/node-statsd)
+- [Optimist](https://github.com/substack/node-optimist)
+- [rpi-gpio.js](https://github.com/JamesBarwell/rpi-gpio.js)
+- [rpi-pid](https://github.com/sigsegv42/rpi-pid)
+- [forever](https://github.com/nodejitsu/forever)
+- [Mongoose](http://mongoosejs.com/)
+- [Express](http://expressjs.com/)
+- [Socket.IO](http://socket.io/)
 
 The _make modules_ command uses npm to install all of the application dependencies.  All modules are installed locally in the node_modules directory except for forever.  Forever is preferred to be installed globally and requires sudo permission to install this way.
 
