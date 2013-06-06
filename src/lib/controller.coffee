@@ -197,16 +197,28 @@ class Controller
 			@state_[sensor].profile.history.push history
 			modified = true
 
+		# accumulator (in hours)
 		profileDuration = 0
+		# any steps in the profile that aren't yet completed?
+		uncompleted = false
+
 		# find active step
 		for step in @state_[sensor].profile.steps
-			profileDuration += step.duration
+			hourDuration = 0
+			if step.units is 'days'
+				hourDuration = step.duration * 24
+			else if step.units is 'hours'
+				hourDuration = step.duration
+			profileDuration += hourDuration
 			if step.completed is true
 				continue
 			stepEnd = new Date()
-			stepEnd.setDate profileStart.getDate() + profileDuration
+			stepEnd.setDate profileStart.getDate()
+			stepEnd.setHours stepEnd.getHours() + profileDuration
+			# found the active step
 			if stepEnd > now
 				activeStep = step
+				uncompleted = true
 				if step.active is false
 					step.active = true
 					step.start_time = now
@@ -219,6 +231,7 @@ class Controller
 					@state_[sensor].profile.history.push history
 				break
 			else
+				# active step is ending
 				if step.active is true
 					step.end_time = now
 					step.active = false
@@ -231,8 +244,12 @@ class Controller
 					time: now
 				@state_[sensor].profile.history.push history
 
+		# profile data has been modified so save it
 		if modified is true
-			@state_[sensor].profile.save()
+			saveHandler = (err) ->
+				if err
+					console.log 'Error saving profile: ' + err
+			@state_[sensor].profile.save saveHandler
 
 		# check if there is an override currently in effect
 		if @state_[sensor].profile.overrides.length > 0
@@ -240,7 +257,7 @@ class Controller
 				override = true
 
 		# has the mode changed?
-		if @state_[sensor].profile.control_mode isnt @state_[sensor].mode
+		if uncompleted is true and @state_[sensor].profile.control_mode isnt @state_[sensor].mode
 			if @debug_
 				console.log 'Switching sensor [' + sensor + '] control mode from [' + @state_[sensor].mode + '] to [' + @state_[sensor].profile.control_mode + ']'
 			@state_[sensor].mode = @state_[sensor].profile.control_mode
@@ -250,6 +267,11 @@ class Controller
 			if @debug_
 				console.log 'Setting sensor [' + sensor + '] SV to Profile [' + @state_[sensor].profile.name + '] Step [' + activeStep.name + '] temperature [' + activeStep.temperature + ']'
 			@state_[sensor].sv = activeStep.temperature
+
+		if uncompleted is false and @state_[sensor].mode isnt 'none'
+			if @debug_
+				console.log 'All profile steps completed. Switching sensor mode to [none].'
+			@state_[sensor].mode = 'none'
 
 		override
 
