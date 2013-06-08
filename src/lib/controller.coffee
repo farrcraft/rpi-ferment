@@ -282,6 +282,11 @@ class Controller
 	processSample: (sensor, value) =>
 		@state_[sensor].pv = value
 
+		data =
+			sensor: sensor
+			pv: value
+		@sockets_.io_.sockets.emit 'setpv', data
+
 		if @debug_
 			console.log 'Processing sample value [' + value + '] for sensor [' + sensor + ']' 
 
