@@ -19,6 +19,8 @@ module.exports = {
 			id: '000004bcb49a'
 			type: 'fermenter'
 			gpio: 25
+			control: 'heater'
+			cycle: 0
 		},
 		{
 			name: 'fermenter_2'
@@ -26,6 +28,8 @@ module.exports = {
 			id: '000004bd0d7b'
 			type: 'fermenter'
 			gpio: 8
+			control: 'heater'
+			cycle: 0
 		}
 	]
 }

@@ -40,8 +40,13 @@ class Controller
 				gpio: false
 				mode: 'manual'
 				profile: null
+				cycle: 0
+				control: null 
+				cooldown: 0
 			if sensor.type isnt 'ambient'
 				@state_[sensor.name].channel = sensor.gpio
+				@state_[sensor.name].control = sensor.control
+				@state_[sensor.name].cycle = sensor.cycle
 
 		# load active profiles
 		model = mongoose.model 'Profile'
@@ -302,15 +307,42 @@ class Controller
 
 		override = @checkSensorProfile sensor
 
+		# if there is a cooldown period in effect, check to see if it has expired
+		if @state_[sensor].cooldown > 0
+			ts = Math.round(+new Date() / 1000)
+			if ts > @state_[sensor].cooldown
+				if @debug_
+					console.log 'GPIO channel [' + @state_[sensor].channel + '] cooldown period has expired.'
+				@state_[sensor].cooldown = 0
+
 		if @state_[sensor].mode is 'auto' and override isnt true
-			if value > @state_[sensor].sv and @state_[sensor].gpio
+			disable = enable = false
+			if @state_[sensor].control is 'heater'
+				if value > @state_[sensor].sv and @state_[sensor].gpio
+					disable = true
+				else if value < @state_[sensor].sv and not @state_[sensor].gpio
+					enable = true
+			else if @state_[sensor].control is 'chiller'
+				if value > @state_[sensor].sv and not @state_[sensor].gpio
+					enable = true
+				else if value < @state_[sensor].sv and @state_[sensor].gpio
+					disable = true
+
+			if enable is true
+				if @state_[sensor].cooldown is 0
+					if @debug_
+						console.log 'Enabling gpio channel: ' + @state_[sensor].channel
+					@setGpio sensor, true
+			else if disable is true
+				if @state_[sensor].cycle > 0
+					if @debug_
+						console.log 'Setting cooldown for [' + @state_[sensor].cycle + '] seconds on gpio channel [' + @state_[sensor].channel + '].'
+					ts = Math.round(+new Date() / 1000)
+					@state_[sensor].cooldown = ts + @state_[sensor].cycle
 				if @debug_
 					console.log 'Disabling gpio channel: ' + @state_[sensor].channel
 				@setGpio sensor, false
-			else if value < @state_[sensor].sv and not @state_[sensor].gpio
-				if @debug_
-					console.log 'Enabling gpio channel: ' + @state_[sensor].channel
-				@setGpio sensor, true
+
 		#	if pid attached to sensor
 		#		set current pv in pid
 		#		do pid computation

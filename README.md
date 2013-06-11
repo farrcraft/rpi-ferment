@@ -58,20 +58,11 @@ The temperature set value used for determining when to send a control signal.  T
 
 #### control
 
-The control mode can be *none*, *auto*, *manual*, or *pid*.  
+The direction of temperature change that the associated GPIO channel controls.  Valid values are *heater* and *chiller*.  When set to *heater* the GPIO will be turned on if the PV is below the SV.  The *chiller* setting will turn the GPIO on when the PV is above the SV.
 
-##### none
+#### cycle
 
-When set to **none**, the *gpio* and *sv* sensor parameters will be ignored and no control signals will be generated.
-
-##### manual
-
-Manual control mode sends a control signal to turn on the *gpio* channel when the temperature sensor reading is below the *sv* temperature.  When the temperature reading is at or above the *sv* value then a control signal is sent to turn off the configured *gpio* channel.
-
-##### pid
-
-PID control mode uses a PID controller algorithm to generate the control signals.
-
+The number of seconds that a GPIO channel must remain off before it can be turned back on again.  When controlling a fridge or freezer, the power should be turned on and off less frequently in order to maintain the life of the compressor.  This value should be set to at least 10-15 minutes (x60) for those devices.  Heating elements typically don't require a cool down period.
 
 ## Usage
 
