@@ -7,6 +7,7 @@ IO 			= require './io.js'
 Sockets		= require './sockets.js'
 ExpressApp 	= require './server.js'
 mongoose 	= require 'mongoose'
+PID 		= require('rpi-pid').PID
 
 require './orm/profile.js'
 
@@ -38,6 +39,7 @@ class Controller
 				sv: 0
 				pv: 0
 				gpio: false
+				pid: null
 				mode: 'manual'
 				profile: null
 				cycle: 0
@@ -82,6 +84,8 @@ class Controller
 		for profile in profiles
 			@state_[profile.sensor].profile = profile
 			@state_[profile.sensor].mode = profile.control_mode
+			if profile.control_mode is 'pid'
+				@state_[profile.sensor].pid = new PID()
 			if profile.overrides.length > 0 and profile.overrides[profile.overrides.length - 1].action isnt 'resume'
 				value = false
 				if profile.overrides[profile.overrides.length - 1].action is 'on'
@@ -175,6 +179,93 @@ class Controller
 	getMode: (sensor) =>
 		@state_[sensor].mode
 
+	# Get the number of hours that a step lasts
+	#
+	# @param object step
+	# @return integer
+	getStepDuration: (step) ->
+		hourDuration = 0
+		if step.units is 'days'
+			hourDuration = step.duration * 24
+		else if step.units is 'hours'
+			hourDuration = step.duration
+		hourDuration
+
+	# Make a profile step active
+	# 
+	# @param string sensor name of the associated sensor 
+	# @param objected step 
+	activateStep: (sensor, step) ->
+		now = new Date()
+		step.active = true
+		step.start_time = now
+		if @debug_
+			console.log 'Enabling step [' + step.name + '] at [' + now.toString() + ']'
+		history = 
+			action: 'start_step'
+			state: 'on'
+			time: now
+		@state_[sensor].profile.history.push history
+		return
+
+	# Make a profile step inactive and mark it as completed
+	#
+	# @param string sensor name of the associated sensor
+	# @param object step
+	deactivateStep: (sensor, step) ->
+		now = new Date()
+		step.end_time = now
+		step.active = false
+		step.completed = true
+		if @debug_
+			console.log 'Completed step [' + step.name + '] at [' + now.toString() + ']'
+		history = 
+			action: 'end_step'
+			state: 'off'
+			time: now
+		@state_[sensor].profile.history.push history
+		return
+
+	# Calculate the current step temperature
+	#
+	# @param object step active step
+	# @return integer interpolated temperature between start & end
+	interpolateStepTemperature: (step) ->
+		range = 0
+		if step.start_temperature > step.end_temperature
+			range = step.start_temperature - step.end_temperature
+		else
+			range = step.end_temperature - step.start_temperature
+		if range is 0
+			return step.start_temperature
+		# total ms that step lasts
+		duration = 3600000 * @getStepDuration step
+		now = new Date()
+		# current number of ms into step
+		progress = now.getTime() - step.start_time.getTime()
+		offset = (progress / duration) * range
+		if step.start_temperature > step.end_temperature
+			currentTemperature = step.start_temperature + offset
+		else
+			currentTemperature = step.start_temperature - offset
+		currentTemperature
+
+	# Mark a profile as active
+	#
+	# @param string sensor the associated sensor
+	# @return Date the current time when the profile was activated
+	activateProfile: (sensor) ->
+		profileStart = new Date()
+		if @debug_
+			console.log 'Enabling profile at [' + profileStart.toString() + ']'
+		@state_[sensor].profile.start_time = profileStart
+		history = 
+			action: 'start_profile'
+			state: 'on'
+			time: profileStart
+		@state_[sensor].profile.history.push history
+		profileStart
+
 	# update the current sensor state based on the active profile
 	#
 	# @param string sensor sensor name
@@ -191,15 +282,7 @@ class Controller
 		modified = false
 		# active profile started for the first time
 		if profileStart is undefined
-			profileStart = new Date()
-			if @debug_
-				console.log 'Enabling profile at [' + profileStart.toString() + ']'
-			@state_[sensor].profile.start_time = profileStart
-			history = 
-				action: 'start_profile'
-				state: 'on'
-				time: profileStart
-			@state_[sensor].profile.history.push history
+			profileStart = @activateProfile sensor
 			modified = true
 
 		# accumulator (in hours)
@@ -209,11 +292,7 @@ class Controller
 
 		# find active step
 		for step in @state_[sensor].profile.steps
-			hourDuration = 0
-			if step.units is 'days'
-				hourDuration = step.duration * 24
-			else if step.units is 'hours'
-				hourDuration = step.duration
+			hourDuration = @getStepDuration step
 			profileDuration += hourDuration
 			if step.completed is true
 				continue
@@ -225,29 +304,14 @@ class Controller
 				activeStep = step
 				uncompleted = true
 				if step.active is false
-					step.active = true
-					step.start_time = now
+					@activateStep sensor, step
 					modified = true
-					console.log 'Enabling step [' + step.name + '] at [' + now.toString() + ']'
-					history = 
-						action: 'start_step'
-						state: 'on'
-						time: now
-					@state_[sensor].profile.history.push history
 				break
 			else
 				# active step is ending
 				if step.active is true
-					step.end_time = now
-					step.active = false
-				step.completed = true
-				modified = true
-				console.log 'Completed step [' + step.name + '] at [' + now.toString() + ']'
-				history = 
-					action: 'end_step'
-					state: 'off'
-					time: now
-				@state_[sensor].profile.history.push history
+					@deactivateStep sensor, step
+					modified = true
 
 		# profile data has been modified so save it
 		if modified is true
@@ -268,10 +332,16 @@ class Controller
 			@state_[sensor].mode = @state_[sensor].profile.control_mode
 
 		# has the SV changed?
-		if activeStep isnt null and @state_[sensor].sv isnt activeStep.temperature
-			if @debug_
-				console.log 'Setting sensor [' + sensor + '] SV to Profile [' + @state_[sensor].profile.name + '] Step [' + activeStep.name + '] temperature [' + activeStep.temperature + ']'
-			@state_[sensor].sv = activeStep.temperature
+		if activeStep isnt null 
+			if activeStep.start_temperature isnt activeStep.end_temperature
+				# interpolate current step temperature
+				currentStepTemperature = @interpolateStepTemperature activeStep
+			else
+				currentStepTemperature = activeStep.start_temperature
+			if @state_[sensor].sv isnt currentStepTemperature
+				if @debug_
+					console.log 'Setting sensor [' + sensor + '] SV to Profile [' + @state_[sensor].profile.name + '] Step [' + activeStep.name + '] temperature [' + activeStep.temperature + ']'
+				@state_[sensor].sv = activeStep.temperature
 
 		if uncompleted is false and @state_[sensor].mode isnt 'none'
 			if @debug_
@@ -342,11 +412,10 @@ class Controller
 				if @debug_
 					console.log 'Disabling gpio channel: ' + @state_[sensor].channel
 				@setGpio sensor, false
-
-		#	if pid attached to sensor
-		#		set current pv in pid
-		#		do pid computation
-		#		use pid output to drive gpio signal
+		#else if @state[sensor].mode is 'pid'
+		# 	set current pv in pid
+		# 	do pid computation
+		# 	use pid output to drive gpio signal
 
 		return
 

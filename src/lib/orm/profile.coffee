@@ -26,7 +26,8 @@ Profile.add
 		name: String
 		duration: Number
 		unit: String
-		temperature: Number
+		start_temperature: Number
+		end_temperature: Number
 		order: Number
 		completed: Boolean
 		start_time: Date
