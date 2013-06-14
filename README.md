@@ -70,7 +70,7 @@ When invoked without any options, the application enters continuous polling mode
 
 The default monitoring mode creates a socket.io server on port 6001 and an Express app server on port 3010.  These ports are customizable in the *src/lib/config.coffee* source file.  Any changes to these ports must also be mirrored in the frontend application.
 
-The list of sensors needs to be configured with the actual sensor ids before invoking this mode.  While the serial numbers are printed directly on the sensors, it is much easier to query them programmatically instead.  Invoking the application with the *--sensors* option does this, printing the serial number of each connected temperature sensor.
+The list of sensors needs to be configured with the actual sensor ids before invoking the monitoring mode.  While the serial numbers are printed directly on the sensors, it is much easier and less error prone to query them programmatically instead.  Invoking the application with the *--sensors* option does this, printing the serial number of each connected temperature sensor.
 
 ``` bash
   $ node monitor.js --sensors
@@ -99,3 +99,77 @@ The current state of GPIO channels can be queried by using the *--status <gpio>*
 ``` bash
   $ node monitor.js --status 8
 ```
+
+## Express API
+
+The Express.js server that is started in the default monitoring mode provides a simple RESTful API for interacting with fermentation profiles.  The default configuration specifies that it listens on port *3010*.
+
+### [GET] /profiles
+
+Retrieve an array of all saved fermentation profiles.
+
+### [GET] /profiles/:id
+
+Retrieve a single saved fermentation profile by its primary key id.
+
+### [POST] /profiles
+
+Save a new fermentation profile.
+
+### [DELETE] /profiles/:id
+
+Delete an existing fermentation profile by its primary key id.
+
+### [PUT] /profiles/:id
+
+Update an existing fermentation profile by its primary key id.
+
+
+## Socket.IO API
+
+The Socket.IO server that is started in the default monitoring mode listens on port *6001* by default.  Clients connected to this realtime event server can emit events that either query or modify the current state of the monitoring server.
+
+
+### config
+
+Request the current sensor configuration data.
+
+### getgpio <channel>
+
+Request the current GPIO state of a channel.
+
+### setgpio <channel> <state>
+
+Set the GPIO state of a channel to the specified state.
+
+### setgpio <data>
+
+This event is emitted by the server anytime that the GPIO state changes.  The data includes the *sensor* and new *state*.
+
+### getsv <sensor>
+
+Get the current SV of a sensor.
+
+### setsv <sensor> <sv>
+
+Set the current SV of a sensor.  
+
+### setsv <data>
+
+This event is emitted by the server anytime that the SV changes (e.g., updates due to profile step changes).  The data includes the *sensor* and new sv *value*.
+
+### getpv <sensor>
+
+Get the most recent PV reading from a sensor.
+
+### getmode <sensor>
+
+Get the current control mode for a sensor.
+
+### setmode <sensor> <mode>
+
+Set the current control mode for a sensor.
+
+### setpv <data>
+
+This event is emitted when a new PV is sampled.  The data contains the *sensor* and *pv* values.
