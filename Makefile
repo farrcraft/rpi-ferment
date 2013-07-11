@@ -5,6 +5,7 @@ all: build
 build:
 	$(COFFEE_PATH) --compile --output lib/ src/lib/
 	$(COFFEE_PATH) --compile --output . src/monitor.coffee
+	$(COFFEE_PATH) --compile --output tools/ src/tools/
 
 modules:
 	npm install

@@ -5,6 +5,7 @@ Express 		= require 'express'
 mongoose		= require 'mongoose'
 logger			= require('./services/logger.js').logger
 profileRouter 	= require './routes/profile.js'
+userRouter		= require './routes/user.js'
 db				= require './services/db.js'
 
 # CORS middleware
@@ -36,6 +37,7 @@ exports.configure = (Express, app) ->
 
 		# routes
 		profileRouter.routes app
+		userRouter.routes app
 
 		app.set 'log', 'logs/rpi-ferment.log'
 		db.establishConnection()
