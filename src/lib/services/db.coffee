@@ -10,3 +10,5 @@ exports.establishConnection = () ->
   mongoose.connect 'mongodb://localhost:27017/brewtheory'
   return
 
+exports.disconnect = () ->
+	mongoose.disconnect()

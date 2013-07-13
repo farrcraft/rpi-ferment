@@ -2,7 +2,7 @@
 (function() {
   var UserTool, bcrypt, db, mongoose, optimist, tool;
 
-  optimist = require('optimist');
+  optimist = require('optimist').argv;
 
   mongoose = require('mongoose');
 
@@ -15,14 +15,11 @@
   UserTool = (function() {
     function UserTool() {}
 
-    UserTool.prototype.run = function(optimist) {
-      var argv;
-
-      optimist.usage('Usage: $0 --add --email [email] --password [password]');
-      optimist.demand(['email', 'password']);
-      argv = optimist.argv;
+    UserTool.prototype.run = function(argv) {
       if (argv.add) {
         return this.add(argv.email, argv.password);
+      } else if (argv.list) {
+        return this.list();
       }
     };
 
@@ -39,9 +36,32 @@
       user.email = email;
       user.password = password;
       user.salt = salt;
-      saveCallback = function(err) {};
+      saveCallback = function(err) {
+        db.disconnect();
+      };
       user.save(saveCallback);
       return true;
+    };
+
+    UserTool.prototype.list = function() {
+      var findCallback, model;
+
+      db.establishConnection();
+      model = mongoose.model('User');
+      findCallback = function(err, users) {
+        var user, _i, _len;
+
+        if (err) {
+          db.disconnect();
+          return;
+          for (_i = 0, _len = users.length; _i < _len; _i++) {
+            user = users[_i];
+            console.log(user.email);
+          }
+        }
+        return db.disconnect();
+      };
+      return model.find(findCallback);
     };
 
     return UserTool;
@@ -50,6 +70,6 @@
 
   tool = new UserTool();
 
-  tool.run(optimist);
+  tool.run(argv);
 
 }).call(this);
