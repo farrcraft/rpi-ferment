@@ -1,7 +1,7 @@
 # Raspberry Pi Fermentation temperature logging & control application
 # (c) Joshua Farr <j.wgasa@gmail.com>
 
-optimist = require('optimist').argv
+argv 	 = require('optimist').argv
 mongoose = require 'mongoose'
 bcrypt	 = require 'bcrypt'
 db		 = require '../lib/services/db.js'
