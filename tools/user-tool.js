@@ -71,7 +71,9 @@
 
       db.establishConnection();
       model = mongoose.model('User');
-      deleteCallback = function(err) {};
+      deleteCallback = function(err) {
+        db.disconnect();
+      };
       return model.findOneAndRemove({
         email: email
       }, deleteCallback);

@@ -55,6 +55,7 @@ class UserTool
 		db.establishConnection()
 		model = mongoose.model 'User'
 		deleteCallback = (err) ->
+			db.disconnect()
 			return
 		model.findOneAndRemove { email: email }, deleteCallback
 
