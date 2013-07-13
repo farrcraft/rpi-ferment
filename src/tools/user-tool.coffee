@@ -12,12 +12,15 @@ require '../lib/orm/user.js'
 # Supported options:
 # --add --email <email> --password <password>
 # --list
+# --delete <email>
 class UserTool
 	run: (argv) ->
 		if argv.add
 			return @add argv.email, argv.password
 		else if argv.list
 			return @list()
+		else if argv.delete
+			return @delete(argv.delete)
 	false
 
 	add: (email, password) ->
@@ -42,11 +45,19 @@ class UserTool
 			if err
 				db.disconnect()
 				return
-				for user in users
-					console.log user.email
+			for user in users
+				console.log user.email
 			db.disconnect()
 
 		model.find findCallback
+
+	delete: (email) ->
+		db.establishConnection()
+		model = mongoose.model 'User'
+		deleteCallback = (err) ->
+			return
+		model.findOneAndRemove { email: email }, deleteCallback
+
 
 tool = new UserTool()
 tool.run argv

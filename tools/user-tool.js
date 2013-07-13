@@ -20,6 +20,8 @@
         return this.add(argv.email, argv.password);
       } else if (argv.list) {
         return this.list();
+      } else if (argv["delete"]) {
+        return this["delete"](argv["delete"]);
       }
     };
 
@@ -54,14 +56,25 @@
         if (err) {
           db.disconnect();
           return;
-          for (_i = 0, _len = users.length; _i < _len; _i++) {
-            user = users[_i];
-            console.log(user.email);
-          }
+        }
+        for (_i = 0, _len = users.length; _i < _len; _i++) {
+          user = users[_i];
+          console.log(user.email);
         }
         return db.disconnect();
       };
       return model.find(findCallback);
+    };
+
+    UserTool.prototype["delete"] = function(email) {
+      var deleteCallback, model;
+
+      db.establishConnection();
+      model = mongoose.model('User');
+      deleteCallback = function(err) {};
+      return model.findOneAndRemove({
+        email: email
+      }, deleteCallback);
     };
 
     return UserTool;
