@@ -31,6 +31,7 @@ class UserTool
 		user = new model()
 		user.email = email
 		user.password = hash
+		# the hash starts with the salt value so storing the salt separately is redundant...
 		user.salt = salt
 		saveCallback = (err) ->
 			db.disconnect()

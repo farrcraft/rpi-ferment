@@ -19,9 +19,12 @@ module.exports.routes = (app) ->
 			if result
 				if bcrypt.compareSync req.body.password, result.password
 					# success
-					res.send { id: result._id }
+					model = 
+						user_id: result._id
+						email: result.email
+					res.send model
 				else
 					# auth failure
-					res.send { }
+					res.send { error_message: 'auth failed' }
 		model.findOne { email: req.body.email }, findCallback
 		return
