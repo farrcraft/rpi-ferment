@@ -26,8 +26,8 @@ exports.getAuthToken = (req) ->
 exports.checkAuthToken = (token, callback) ->
 	model = mongoose.model 'User'
 	authCallback = (err, model) ->
-		if model isnt undefined
-			callback true
-		else
+		if model is null
 			callback false
+		else
+			callback true
 	model.findOne { access_token: token }, authCallback

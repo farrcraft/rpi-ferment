@@ -3,6 +3,8 @@
 
 http 		 = require 'http'
 socketio	 = require 'socket.io'
+auth 		 = require 'services/auth.js'
+db 			 = require 'services/db.js'
 
 class Sockets
 	controller_: null
@@ -14,6 +16,15 @@ class Sockets
 	httpHandler: (req, res) ->
 		res.writeHead 200
 		res.end ''
+		return
+
+	checkPermission: (access_token, callback) ->
+		authCallback = (authed) ->
+			#db.disconnect()
+			if authed is true
+				callback()
+		#db.establishConnection()
+		auth.checkAuthToken access_token, callback
 		return
 
 	run: () =>
@@ -44,17 +55,21 @@ class Sockets
 			return
 
 		# set gpio state for channel
-		socket.on 'setgpio', (channel, state) =>
-			if @controller_.debug()
-				console.log 'Socket requested GPIO channel [' + channel + '] set to state [' + state + ']'
-			@controller_.setGpio channel, state
+		socket.on 'setgpio', (channel, state, access_token) =>
+			setGpioCallback = () ->
+				if @controller_.debug()
+					console.log 'Socket requested GPIO channel [' + channel + '] set to state [' + state + ']'
+				@controller_.setGpio channel, state
+			@checkPermission access_token, setGpioCallback
 			return
 
 		# set sensor sv
-		socket.on 'setsv', (sensor, sv) =>
-			if @controller_.debug()
-				console.log 'Socket requested sensor [' + sensor + '] SV set to [' + sv + ']'
-			@controller_.setSv sensor, sv
+		socket.on 'setsv', (sensor, sv, access_token) =>
+			setSvCallback = () ->
+				if @controller_.debug()
+					console.log 'Socket requested sensor [' + sensor + '] SV set to [' + sv + ']'
+				@controller_.setSv sensor, sv
+			@checkPermission access_token, setSvCallback
 			return
 
 		# get sensor sv
@@ -85,10 +100,12 @@ class Sockets
 			return
 
 		# set a sensor's control mode
-		socket.on 'setmode', (sensor, mode) =>
-			if @controller_.debug()
-				console.log 'Socket requested sensor [' + sensor '] set to mode [' + mode + ']'
-			@controller_.setMode sensor, mode
+		socket.on 'setmode', (sensor, mode, access_token) =>
+			setModeCallback = () ->
+				if @controller_.debug()
+					console.log 'Socket requested sensor [' + sensor '] set to mode [' + mode + ']'
+				@controller_.setMode sensor, mode
+			@checkPermission access_token, setModeCallback
 
 		return
 

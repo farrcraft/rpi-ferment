@@ -53,6 +53,7 @@ class UserTool
 		# the hash starts with the salt value so storing the salt separately is redundant...
 		user.salt = salt
 		saveCallback = (err) ->
+			console.log 'Created user with access token [' + token + ']'
 			db.disconnect()
 			return
 		user.save saveCallback

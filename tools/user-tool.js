@@ -52,6 +52,7 @@
       user.access_token = token;
       user.salt = salt;
       saveCallback = function(err) {
+        console.log('Created user with access token [' + token + ']');
         db.disconnect();
       };
       user.save(saveCallback);

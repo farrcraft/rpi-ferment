@@ -34,6 +34,7 @@ module.exports.routes = (app) ->
 
 		saveProfile = (authed) =>
 			if authed isnt true
+				res.status 403
 				res.send { }
 				return
 			model = mongoose.model 'Profile'
@@ -59,6 +60,7 @@ module.exports.routes = (app) ->
 
 		deleteProfile = (authed) =>
 			if authed isnt true
+				res.status 403
 				res.send { }
 				return
 			model = mongoose.model 'Profile'
@@ -76,6 +78,7 @@ module.exports.routes = (app) ->
 
 		updateProfile = (authed) =>
 			if authed isnt true
+				res.status 403
 				res.send { }
 				return
 			model = mongoose.model 'Profile'
