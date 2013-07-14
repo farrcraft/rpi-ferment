@@ -3,8 +3,8 @@
 
 http 		 = require 'http'
 socketio	 = require 'socket.io'
-auth 		 = require 'services/auth.js'
-db 			 = require 'services/db.js'
+auth 		 = require './services/auth.js'
+db 			 = require './services/db.js'
 
 class Sockets
 	controller_: null

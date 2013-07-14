@@ -115,7 +115,7 @@ The following commands are supported:
 
 
 ### Add User
-* --add --email <email> --password <password>
+* --add --email [email] --password [password]
 
 ### List Users
 
@@ -123,7 +123,7 @@ The following commands are supported:
 
 ### Delete User
 
-* --delete <email>
+* --delete [email]
 
 ### Generate Access Token
 
