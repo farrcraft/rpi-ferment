@@ -36,7 +36,7 @@
       hash = bcrypt.hashSync(password, salt);
       user = new model();
       user.email = email;
-      user.password = password;
+      user.password = hash;
       user.salt = salt;
       saveCallback = function(err) {
         db.disconnect();

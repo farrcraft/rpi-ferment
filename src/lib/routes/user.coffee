@@ -2,6 +2,7 @@
 # (c) Joshua Farr <j.wgasa@gmail.com>
 
 mongoose = require 'mongoose'
+bcrypt	 = require 'bcrypt'
 
 require '../orm/user.js'
 
@@ -16,11 +17,11 @@ module.exports.routes = (app) ->
 			if error
 				return
 			if result
-				if bcrypt.compare_sync req.password, result.password
+				if bcrypt.compareSync req.body.password, result.password
 					# success
 					res.send { id: result._id }
 				else
 					# auth failure
 					res.send { }
-		model.findOne { email: req.email }, findCallback
+		model.findOne { email: req.body.email }, findCallback
 		return
