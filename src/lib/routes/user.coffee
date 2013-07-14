@@ -21,6 +21,7 @@ module.exports.routes = (app) ->
 					# success
 					model = 
 						user_id: result._id
+						access_token: result.access_token
 						email: result.email
 					res.send model
 				else

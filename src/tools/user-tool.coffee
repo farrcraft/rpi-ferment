@@ -4,15 +4,29 @@
 argv 	 = require('optimist').argv
 mongoose = require 'mongoose'
 bcrypt	 = require 'bcrypt'
+hashlib  = require 'hashlib'
+fs 		 = require 'fs'
+Buffer 	 = require('buffer').Buffer
 db		 = require '../lib/services/db.js'
 
 require '../lib/orm/user.js'
 
 # Tool for managing users in the MongoDB user collection
+#
 # Supported options:
+#
+# Add a new user:
 # --add --email <email> --password <password>
+#
+# List existing users:
 # --list
+#
+# Delete an existing user
 # --delete <email>
+#
+# Generate an access token
+# --token
+#
 class UserTool
 	run: (argv) ->
 		if argv.add
@@ -21,6 +35,8 @@ class UserTool
 			return @list()
 		else if argv.delete
 			return @delete(argv.delete)
+		else if argv.token
+			@generateToken()
 	false
 
 	add: (email, password) ->
@@ -31,6 +47,8 @@ class UserTool
 		user = new model()
 		user.email = email
 		user.password = hash
+		token = @generateToken()
+		user.access_token = token
 		# the hash starts with the salt value so storing the salt separately is redundant...
 		user.salt = salt
 		saveCallback = (err) ->
@@ -59,6 +77,16 @@ class UserTool
 			db.disconnect()
 			return
 		model.findOneAndRemove { email: email }, deleteCallback
+
+	generateToken: () ->
+		howMany = 100
+		bytes = new Buffer howMany
+		fd = fs.openSync '/dev/random', 'r'
+		fs.readSync fd, bytes, 0, howMany
+		fs.closeSync fd
+		hash = hashlib.sha512 bytes.toString()
+		token = hash.substring 0, 40
+		token
 
 
 tool = new UserTool()
