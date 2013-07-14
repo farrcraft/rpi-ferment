@@ -12,12 +12,15 @@ module.exports.routes = (app) ->
 	# POST auth a user
 	app.post '/session', (req, res) ->
 		model = mongoose.model 'User'
-		user.findOne { email: req.email }, (error, result) ->
-		if error
-			return
-		if result
-			if bcrypt.compare_sync req.password, result.password
-				# success
-			else
-				# auth failure
+		findCallback = (error, result) ->
+			if error
+				return
+			if result
+				if bcrypt.compare_sync req.password, result.password
+					# success
+					res.send { id: result._id }
+				else
+					# auth failure
+					res.send { }
+		model.findOne { email: req.email }, findCallback
 		return
