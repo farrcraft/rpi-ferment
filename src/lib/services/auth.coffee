@@ -5,7 +5,7 @@ Buffer 		= require('buffer').Buffer
 mongoose    = require 'mongoose'
 db          = require './db.js'
 
-require '../lib/orm/user.js'
+require '../orm/user.js'
 
 # Parse an http auth header. The header looks something like:
 # authorization: 'Basic ab83feDQIZ82C82kd8CHQD=='
