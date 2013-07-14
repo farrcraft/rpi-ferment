@@ -17,6 +17,8 @@ User.add
 	salt: 
 		type: String
 		required: true
+	access_token:
+		type: String
 	updated_at: Boolean
 	active: Boolean
 	created_at:
