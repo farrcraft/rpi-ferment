@@ -4,7 +4,7 @@
 argv 	 = require('optimist').argv
 mongoose = require 'mongoose'
 bcrypt	 = require 'bcrypt'
-hashlib  = require 'hashlib'
+crypto	 = require 'crypto'
 fs 		 = require 'fs'
 Buffer 	 = require('buffer').Buffer
 db		 = require '../lib/services/db.js'
@@ -36,7 +36,8 @@ class UserTool
 		else if argv.delete
 			return @delete(argv.delete)
 		else if argv.token
-			@generateToken()
+			token = @generateToken()
+			console.log 'Access Token: ', token
 	false
 
 	add: (email, password) ->
@@ -84,7 +85,9 @@ class UserTool
 		fd = fs.openSync '/dev/random', 'r'
 		fs.readSync fd, bytes, 0, howMany
 		fs.closeSync fd
-		hash = hashlib.sha512 bytes.toString()
+		sha512 = crypto.createHash 'sha512'
+		sha512.update bytes
+		hash = sha512.digest 'hex'
 		token = hash.substring 0, 40
 		token
 

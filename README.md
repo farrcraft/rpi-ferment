@@ -15,6 +15,8 @@ A tool to monitor temperature sensor data, log it and make IO responses.
 - [Mongoose](http://mongoosejs.com/)
 - [Express](http://expressjs.com/)
 - [Socket.IO](http://socket.io/)
+- [bcrypt](https://github.com/ncb000gt/node.bcrypt.js/)
+
 
 The _make modules_ command uses npm to install all of the application dependencies.  All modules are installed locally in the node_modules directory except for forever.  Forever is preferred to be installed globally and requires sudo permission to install this way.
 
@@ -100,9 +102,41 @@ The current state of GPIO channels can be queried by using the *--status <gpio>*
   $ node monitor.js --status 8
 ```
 
+## Access Control
+
+The Express and Socket.IO API's only allow modifications to be made by authorized users that provide a valid access token with the calls to those methods.  In the Express API this is done via HTTP authentication headers.  Socket.IO calls should pass the token directly as one of the data parameters.
+
+
+## User Management
+
+User management is done using the separate *tools/user-tool.js* command.  Users are stored in the user collection of the mongodb.  Each user is assigned a unique access token at the time of creation.
+
+The following commands are supported:
+
+
+### Add User
+* --add --email <email> --password <password>
+
+### List Users
+
+* --list
+
+### Delete User
+
+* --delete <email>
+
+### Generate Access Token
+
+* --token
+
+
 ## Express API
 
 The Express.js server that is started in the default monitoring mode provides a simple RESTful API for interacting with fermentation profiles.  The default configuration specifies that it listens on port *3010*.
+
+### [POST] /session
+
+Perform user authentication.  The request payload should include the user email address and raw password.  If authentication is successful, then the user's access token is sent in the response payload. 
 
 ### [GET] /profiles
 
